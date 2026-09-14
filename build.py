@@ -20,14 +20,18 @@ BRAND   = "Providence Premium Suites"
 LEGAL   = "Providence Living Group Ltd"
 # Not invented. Shaazia has not given these yet and a company number is a
 # statutory disclosure — a wrong one is worse than a visible gap.
-COMPANY_NO   = None
-REG_OFFICE   = None
+# Supplied 10-Sep-2026. The company NUMBER is still outstanding — and unlike
+# the others it is a statutory website disclosure, so build.py refuses to call
+# the site launch-ready until it arrives. See launch_blockers().
+COMPANY_NO    = None
+REG_OFFICE    = "5 New Providence Wharf, London E14 9PF"
 CONTACT_EMAIL = None
-CONTACT_PHONE = None
+CONTACT_PHONE = "07455 125635"
+PHONE_LINK    = "+447455125635"
 
 NAV = [
     ("Home",             "index.html"),
-    ("Residences",       "residences.html"),
+    ("Collection",       "residences.html"),
     ("Corporate Stays",  "corporate-stays.html"),
     ("About",            "about.html"),
     ("Property Partners","property-partners.html"),
@@ -101,13 +105,72 @@ RESIDENCES = [
     },
 ]
 
+
+# --------------------------------------------------------------------------
+# Locations being prepared. Deliberately presented as PLACES with a caption,
+# not as apartments with invented bedroom counts and rates — a "coming soon"
+# badge on a location is a statement of intent, which is hers to make. A
+# coming-soon badge on a fabricated apartment would be a claim about stock
+# that does not exist.
+# --------------------------------------------------------------------------
+COMING_SOON = {
+    "London": [
+        ("Canary Wharf",      "Riverside towers and the business district on the doorstep."),
+        ("Victoria",          "Terminals, Westminster and the parks within a short walk."),
+        ("Pimlico",           "Quiet white stucco streets between the river and Victoria."),
+        ("Westminster",       "The Abbey, the river and Whitehall at the end of the road."),
+        ("West End",          "Theatre, dining and the heart of central London."),
+        ("Soho",              "Late tables, small rooms and the best of the city at night."),
+        ("Piccadilly Circus", "The centre of everything, for guests who want to walk."),
+        ("Leicester Square",  "Cinemas, Chinatown and Covent Garden minutes away."),
+        ("Covent Garden",     "Cobbles, the piazza and the market under the arcades."),
+        ("Mayfair",           "Quiet garden squares, galleries and the finest addresses."),
+        ("Belgravia",         "Cream façades, embassies and a stillness rare in zone one."),
+        ("Oxford Street",     "For guests who want the shops beneath the window."),
+        ("Notting Hill",      "Pastel terraces, Portobello and a village pace."),
+        ("Marylebone",        "The high street, the village feel and Regent's Park."),
+        ("Holborn",           "Between the City and the West End, walkable to both."),
+        ("Bloomsbury",        "Garden squares, the museum and the university quarter."),
+        ("Fitzrovia",         "Restaurants, studios and a quieter side of the centre."),
+        ("Earls Court",       "Well connected, residential, with easy access west."),
+        ("Hyde Park",         "The park on one side, Knightsbridge on the other."),
+        ("South Kensington",  "The museums, the gardens and the Cromwell Road."),
+        ("Charing Cross",     "The river, Trafalgar Square and the trains south."),
+        ("London Bridge",     "The Shard, Borough Market and the south bank."),
+        ("King's Cross",      "The Eurostar, the canal and a quarter transformed."),
+        ("Euston",            "Trains north, with Bloomsbury and Regent's Park nearby."),
+        ("Paddington",        "The Heathrow Express and the canal at Little Venice."),
+        ("Bayswater",         "Between the park and Notting Hill, quietly residential."),
+        ("Liverpool Street",  "The City, Spitalfields and the trains east."),
+        ("Clerkenwell",       "Design studios, old workshops and very good food."),
+        ("Farringdon",        "The Elizabeth line and the edge of the City."),
+        ("City of London",    "The square mile, calm at weekends, busy at eight."),
+        ("Shoreditch",        "Galleries, markets and the most alive part of the east."),
+        ("Spitalfields",      "The market, Georgian streets and the City beside it."),
+        ("Tower Hill",        "The Tower, the bridge and the river path east."),
+        ("Waterloo",          "The South Bank, the trains south and the river walk."),
+        ("Vauxhall",          "The river, the Victoria line and Nine Elms nearby."),
+        ("Kennington",        "Georgian terraces, the park and the Oval."),
+    ],
+    "Dubai": [
+        ("Dubai Marina",      "The promenade, the yachts and the towers above them."),
+        ("Downtown Dubai",    "The Burj, the fountains and the Dubai Mall below."),
+        ("Palm Jumeirah",     "Beachfront residences and the water on three sides."),
+        ("Business Bay",      "The canal, the offices and Downtown a few minutes away."),
+        ("Jumeirah Beach Residence", "The beach, The Walk and the sea air."),
+        ("DIFC",              "The financial centre, the galleries and the restaurants."),
+        ("City Walk",         "Low-rise, walkable and close to Jumeirah."),
+        ("Bluewaters Island", "The wheel, the beach club and the marina beyond."),
+    ],
+}
+
 # --------------------------------------------------------------------------
 
 def esc(s):
     return html.escape(str(s), quote=False)
 
 
-def shot(cls, src=None, alt="", mark=None, what=None, note="Photography to come", up=""):
+def shot(cls, src=None, alt="", mark=None, what=None, note=None, up=""):
     """A photographic slot.
 
     Renders the photograph where one exists, and where one does not renders a
@@ -125,20 +188,33 @@ def shot(cls, src=None, alt="", mark=None, what=None, note="Photography to come"
     bits.append('<div class="mark">%s</div>' % esc(mark or "Providence"))
     if what:
         bits.append('<div class="what">%s</div>' % esc(what))
-    bits.append('<div class="note">%s</div>' % esc(note))
+    # She asked that visitors never see unfinished wording, so the frames no
+    # longer carry a "photography to come" stamp. They still name the room,
+    # which reads as a caption rather than as a defect — and still tells the
+    # photographer what belongs there.
+    if note:
+        bits.append('<div class="note">%s</div>' % esc(note))
     bits.append('</div>')
     return '<div class="shot placeholder %s" role="img" aria-label="%s">%s</div>' % (
         cls, esc((mark or "") + " — " + (what or "photography to come")), "".join(bits))
 
 
-def tbc(label):
-    """A statutory or contact detail Shaazia has not supplied yet.
+def launch_blockers():
+    """What is still missing before this site can go live on her domain.
 
-    Marked visibly rather than filled with something plausible. A made-up
-    company number on a live trading site is a legal problem, not a cosmetic
-    one, so the gap is the honest output.
+    Printed at every build. The company number is the one that matters: under
+    the Companies Act a limited company must show its registered number,
+    place of registration and registered office on its website. Omitting it
+    is not compliant — but neither is inventing one, and she has asked that
+    visitors never see 'to be supplied'. So the text is hidden and the gap is
+    reported here instead of on the page.
     """
-    return '<span class="tbc" title="To be supplied">%s</span>' % esc(label)
+    out = []
+    if not COMPANY_NO:
+        out.append("Company number — REQUIRED BY LAW before the site goes live")
+    if not CONTACT_EMAIL:
+        out.append("Business email address")
+    return out
 
 
 def head(page, title, desc, canonical, og_image=None, jsonld=None, depth=0):
@@ -199,6 +275,16 @@ def header(active, depth=0):
 
 def footer(depth=0):
     up = "../" * depth
+    # Anything not yet supplied is omitted entirely rather than shown as a gap.
+    company_no_clause = (", company number %s" % esc(COMPANY_NO)) if COMPANY_NO else ""
+    bits = []
+    if CONTACT_PHONE:
+        bits.append('Telephone <a href="tel:%s" style="display:inline">%s</a>'
+                    % (PHONE_LINK, esc(CONTACT_PHONE)))
+    if CONTACT_EMAIL:
+        bits.append('Email <a href="mailto:%s" style="display:inline">%s</a>'
+                    % (CONTACT_EMAIL, esc(CONTACT_EMAIL)))
+    contact_line = " &middot; ".join(bits)
     res = "".join('<a href="%sresidences/%s.html">%s</a>' % (up, r["slug"], esc(r["name"]))
                   for r in RESIDENCES)
     return f"""</main>
@@ -215,7 +301,7 @@ def footer(depth=0):
       <div>
         <h4>Stay</h4>
         {res}
-        <a href="{up}residences.html">All residences</a>
+        <a href="{up}residences.html">The Providence Collection</a>
         <a href="{up}corporate-stays.html">Corporate &amp; extended stays</a>
         <a href="{up}book.html">Book a stay</a>
       </div>
@@ -235,15 +321,34 @@ def footer(depth=0):
     </div>
     <div class="legal">
       <p><b>{esc(BRAND)}</b> is a trading name of <b>{esc(LEGAL)}</b>, a company registered in
-      England and Wales. Company number {tbc("to be supplied")}. Registered office
-      {tbc("to be supplied")}.</p>
-      <p style="margin-top:10px">Enquiries {tbc("email to be supplied")} ·
-      {tbc("telephone to be supplied")}</p>
-      <p style="margin-top:10px">Photography on this site is placeholder imagery pending the
-      Providence photoshoot. &copy; <span id="yr">2026</span> {esc(LEGAL)}. All rights reserved.</p>
+      England and Wales{company_no_clause}. Registered office: {esc(REG_OFFICE)}.</p>
+      <p style="margin-top:10px">{contact_line}</p>
+      <p style="margin-top:10px">&copy; <span id="yr">2026</span> {esc(LEGAL)}. All rights reserved.</p>
     </div>
   </div>
 </footer>
+
+<div class="concierge" id="concierge">
+  <button class="conc-open" id="concOpen" aria-expanded="false" aria-controls="concPanel">
+    <span class="dot"></span><span>Concierge</span>
+  </button>
+  <div class="conc-panel" id="concPanel" hidden>
+    <div class="conc-head">
+      <div>
+        <div class="conc-t">Providence Concierge</div>
+        <div class="conc-s">Usually replies the same day</div>
+      </div>
+      <button class="conc-x" id="concClose" aria-label="Close">&times;</button>
+    </div>
+    <div class="conc-log" id="concLog" role="log" aria-live="polite"></div>
+    <div class="conc-chips" id="concChips"></div>
+    <form class="conc-form" id="concForm">
+      <input id="concInput" placeholder="Ask about a stay&hellip;" autocomplete="off"
+             aria-label="Message the concierge">
+      <button type="submit" aria-label="Send">&rarr;</button>
+    </form>
+  </div>
+</div>
 <script src="{up}assets/site.js"></script>
 </body>
 </html>
@@ -276,7 +381,27 @@ ORG_LD = {
 #  PAGES
 # ==========================================================================
 
+
+def coming_soon_section(heading_level="h2"):
+    """The locations being prepared, London then Dubai."""
+    out = []
+    for place, items in COMING_SOON.items():
+        tiles = "".join(
+            '<li class="loc"><span class="badge">Coming soon</span>'
+            '<span class="nm">%s</span><span class="cap">%s</span></li>' % (esc(n), esc(c))
+            for n, c in items)
+        out.append(
+            '<div class="comingblock">'
+            '<div class="comingtop"><h3>%s</h3><span class="caps">%d locations being prepared</span></div>'
+            '<ul class="locs">%s</ul></div>' % (esc(place), len(items), tiles))
+    return "".join(out)
+
+
 def build_home():
+    # a short taste on the home page; the full list lives on the Collection page
+    pick = [n for n, _ in COMING_SOON["London"][:8]] + [n for n, _ in COMING_SOON["Dubai"][:3]]
+    tease = "".join('<li class="loc"><span class="badge">Coming soon</span>'
+                    '<span class="nm">%s</span></li>' % esc(n) for n in pick)
     cards = ""
     for i, r in enumerate(RESIDENCES):
         cards += f"""
@@ -323,8 +448,19 @@ def build_home():
 <section>
   <div class="wrap">
     <span class="caps eyebrow">The collection</span>
-    <h2>Our Residences</h2>
+    <h2>The Providence Collection</h2>\n    <p class="lede" style="margin-top:18px;max-width:46ch">Thoughtfully selected residences across London.</p>
     <div style="margin-top:clamp(38px,5vw,68px)">{cards}</div>
+  </div>
+</section>
+
+<section class="sec-cream">
+  <div class="wrap">
+    <span class="caps eyebrow">In preparation</span>
+    <h2>Coming next</h2>
+    <p class="lede" style="margin-top:18px;max-width:52ch">Residences being prepared across central
+    London, and a first collection in Dubai.</p>
+    <ul class="locs locs-tease" style="margin-top:clamp(30px,4vw,48px)">{tease}</ul>
+    <a class="btn btn-ghost btn-sm" href="residences.html" style="margin-top:30px">See every location</a>
   </div>
 </section>
 
@@ -383,14 +519,15 @@ def build_residences():
           <a class="btn btn-ghost btn-sm go" href="residences/{r['slug']}.html">View residence</a>
         </div>
       </article>"""
+    coming = coming_soon_section()
     body = f"""
 <section class="hero hero-sm" style="padding:0">
-  <div class="bg">{shot("", None, "", "Providence", "Collection — architectural exterior or interior")}</div>
+  <div class="bg">{shot("", "img/c02.jpg", "A Providence residence", up="")}</div>
   <div class="scrim"></div>
   <div class="wrap in">
     <div class="rule"></div>
-    <h1>Our Residences</h1>
-    <p class="tag">A curated collection, growing carefully.</p>
+    <h1>The Providence Collection</h1>
+    <p class="tag">Thoughtfully selected residences across London.</p>
   </div>
 </section>
 
@@ -404,15 +541,31 @@ def build_residences():
     <div style="margin-top:clamp(44px,6vw,80px)">{cards}</div>
     <div class="note" style="margin-top:clamp(44px,6vw,72px);max-width:60ch">
       <span class="caps">The collection is growing</span>
-      <p>Further residences are being prepared. If you are looking for something specific in
-      London &mdash; a particular area, a longer stay or more space &mdash; do get in touch and we
+      <p>Further residences are being prepared. If you are looking for something specific
+      &mdash; a particular area, a longer stay or more space &mdash; do get in touch and we
       will tell you what is coming.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sec-cream">
+  <div class="wrap">
+    <span class="caps eyebrow">In preparation</span>
+    <h2>Where Providence is coming next</h2>
+    <p class="lede" style="margin-top:18px;max-width:52ch">Residences being prepared across central
+    London, and a first collection in Dubai.</p>
+    <div style="margin-top:clamp(36px,5vw,58px)">{coming}</div>
+    <div class="note" style="margin-top:clamp(34px,4vw,52px);max-width:62ch">
+      <span class="caps">Register your interest</span>
+      <p>If a location below suits you, tell us and we will let you know the moment that residence
+      opens &mdash; usually before it is advertised anywhere else.</p>
+      <a class="btn btn-ghost btn-sm" href="contact.html" style="margin-top:18px">Register interest</a>
     </div>
   </div>
 </section>
 """
     return page("residences.html",
-                "Our Residences — Serviced Apartments in London | Providence Premium Suites",
+                "The Providence Collection — Serviced Apartments in London",
                 "The Providence collection of serviced apartments in London, presented to a single "
                 "standard for short stays and extended corporate visits.",
                 body, "residences.html")
@@ -775,9 +928,9 @@ def build_contact():
     <div>
       <h3>Providence Premium Suites</h3>
       <table class="facts" style="margin-top:22px">
-        <tr><th>Email</th><td>{tbc("to be supplied")}</td></tr>
-        <tr><th>Telephone</th><td>{tbc("to be supplied")}</td></tr>
-        <tr><th>Where we operate</th><td>London</td></tr>
+        <tr><th>Telephone</th><td><a href="tel:{PHONE_LINK}">{esc(CONTACT_PHONE)}</a></td></tr>
+        <tr><th>Address</th><td>{esc(REG_OFFICE)}</td></tr>
+        <tr><th>Where we operate</th><td>London &middot; Dubai from 2027</td></tr>
         <tr><th>Company</th><td>{esc(LEGAL)}</td></tr>
       </table>
       <div class="note">
@@ -886,8 +1039,8 @@ LEGAL_PAGES = [
         ("The information here", "We take care that the site is accurate, but descriptions, images and rates "
                                  "are indicative. Nothing on this site is an offer capable of acceptance; a booking exists "
                                  "only once we confirm it in writing."),
-        ("Photography", "Images shown are placeholder imagery pending the Providence photoshoot and do not "
-                        "yet depict the residences."),
+        ("Photography", "Images are indicative. Furnishings, layout and outlook may differ between "
+                        "residences, and the residence you book is confirmed to you in writing."),
         ("Intellectual property", "The content and design of this site belong to {LEGAL} unless stated."),
         ("Links", "Where we link to another site we are not responsible for its content."),
         ("Law", "These terms are governed by the law of England and Wales."),

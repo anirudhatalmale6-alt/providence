@@ -26,13 +26,13 @@
     <a class="brand" href="index.html" aria-label="Providence Premium Suites — home">
       <span class="n">Providence</span><span class="s">Premium Suites</span>
     </a>
-    <nav><a href="index.html">Home</a><a href="residences.html">Residences</a><a href="corporate-stays.html">Corporate Stays</a><a href="about.html" aria-current="page">About</a><a href="property-partners.html">Property Partners</a><a href="contact.html">Contact</a></nav>
+    <nav><a href="index.html">Home</a><a href="residences.html">Collection</a><a href="corporate-stays.html">Corporate Stays</a><a href="about.html" aria-current="page">About</a><a href="property-partners.html">Property Partners</a><a href="contact.html">Contact</a></nav>
     <a class="btn btn-sm" href="book.html" id="navBook">Book</a>
     <button class="burger" id="burger" aria-label="Menu" aria-expanded="false" aria-controls="mobnav">
       <span></span><span></span><span></span>
     </button>
   </div>
-  <div class="mobnav" id="mobnav"><a href="index.html">Home</a><a href="residences.html">Residences</a><a href="corporate-stays.html">Corporate Stays</a><a href="about.html" aria-current="page">About</a><a href="property-partners.html">Property Partners</a><a href="contact.html">Contact</a><a class="btn" href="book.html">Book</a></div>
+  <div class="mobnav" id="mobnav"><a href="index.html">Home</a><a href="residences.html">Collection</a><a href="corporate-stays.html">Corporate Stays</a><a href="about.html" aria-current="page">About</a><a href="property-partners.html">Property Partners</a><a href="contact.html">Contact</a><a class="btn" href="book.html">Book</a></div>
 </header>
 <main id="main">
 
@@ -92,7 +92,7 @@
       <div>
         <h4>Stay</h4>
         <a href="residences/vauxhall-residence.html">Vauxhall Residence</a>
-        <a href="residences.html">All residences</a>
+        <a href="residences.html">The Providence Collection</a>
         <a href="corporate-stays.html">Corporate &amp; extended stays</a>
         <a href="book.html">Book a stay</a>
       </div>
@@ -112,15 +112,34 @@
     </div>
     <div class="legal">
       <p><b>Providence Premium Suites</b> is a trading name of <b>Providence Living Group Ltd</b>, a company registered in
-      England and Wales. Company number <span class="tbc" title="To be supplied">to be supplied</span>. Registered office
-      <span class="tbc" title="To be supplied">to be supplied</span>.</p>
-      <p style="margin-top:10px">Enquiries <span class="tbc" title="To be supplied">email to be supplied</span> ·
-      <span class="tbc" title="To be supplied">telephone to be supplied</span></p>
-      <p style="margin-top:10px">Photography on this site is placeholder imagery pending the
-      Providence photoshoot. &copy; <span id="yr">2026</span> Providence Living Group Ltd. All rights reserved.</p>
+      England and Wales. Registered office: 5 New Providence Wharf, London E14 9PF.</p>
+      <p style="margin-top:10px">Telephone <a href="tel:+447455125635" style="display:inline">07455 125635</a></p>
+      <p style="margin-top:10px">&copy; <span id="yr">2026</span> Providence Living Group Ltd. All rights reserved.</p>
     </div>
   </div>
 </footer>
+
+<div class="concierge" id="concierge">
+  <button class="conc-open" id="concOpen" aria-expanded="false" aria-controls="concPanel">
+    <span class="dot"></span><span>Concierge</span>
+  </button>
+  <div class="conc-panel" id="concPanel" hidden>
+    <div class="conc-head">
+      <div>
+        <div class="conc-t">Providence Concierge</div>
+        <div class="conc-s">Usually replies the same day</div>
+      </div>
+      <button class="conc-x" id="concClose" aria-label="Close">&times;</button>
+    </div>
+    <div class="conc-log" id="concLog" role="log" aria-live="polite"></div>
+    <div class="conc-chips" id="concChips"></div>
+    <form class="conc-form" id="concForm">
+      <input id="concInput" placeholder="Ask about a stay&hellip;" autocomplete="off"
+             aria-label="Message the concierge">
+      <button type="submit" aria-label="Send">&rarr;</button>
+    </form>
+  </div>
+</div>
 <script src="assets/site.js"></script>
 </body>
 </html>

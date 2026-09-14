@@ -128,8 +128,14 @@ h3{font-size:clamp(20px,2.2vw,26px)}
    check.py measures the real backdrop and fails if it slips again. */
 .hero .scrim{position:absolute;inset:0;
   background:
-    linear-gradient(to top,#28231FE8 0%,#28231FA6 34%,#28231F5E 64%,#28231F2E 100%),
-    linear-gradient(to right,#28231F87 0%,#28231F45 48%,#28231F14 76%,transparent 100%)}
+    linear-gradient(to top,#28231FEB 0%,#28231FBD 30%,#28231F7A 58%,#28231F38 100%),
+    linear-gradient(to right,#28231F8F 0%,#28231F52 48%,#28231F1A 76%,transparent 100%)}
+/* On a narrow screen the hero is shorter, so the tagline sits higher up where
+   the gradient has already thinned — and the photograph's bright window fills
+   more of the frame. Measured at 2.2% of that line below 4.5:1 before this. */
+@media(max-width:620px){
+  .hero .scrim{background:linear-gradient(to top,#28231FF0 0%,#28231FD1 44%,#28231F96 72%,#28231F52 100%)}
+}
 .hero .in{position:relative;padding-block:clamp(48px,9vh,110px);color:var(--cream)}
 .hero h1{color:var(--cream);font-size:clamp(32px,6vw,74px);letter-spacing:.06em;
   text-transform:uppercase;max-width:16ch}
@@ -281,3 +287,81 @@ section{padding-block:clamp(64px,9vw,132px)}
 
 .skip{position:absolute;left:-9999px}
 .skip:focus{left:12px;top:12px;z-index:99;background:var(--espresso);color:var(--cream);padding:12px 18px}
+
+
+/* ---------- locations in preparation ----------------------------------------
+   Places, not apartments. A caption and a quiet badge; no invented bedroom
+   counts or rates, because those would be claims about stock that does not
+   exist yet. */
+.comingblock + .comingblock{margin-top:clamp(40px,5vw,66px)}
+.comingtop{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;
+  padding-bottom:16px;border-bottom:1px solid var(--rule);margin-bottom:26px}
+.comingtop h3{font-size:clamp(22px,2.6vw,30px)}
+.locs{list-style:none;margin:0;padding:0;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:2px}
+.locs .loc{background:var(--cream);border:1px solid var(--rule);padding:20px 22px;
+  display:flex;flex-direction:column;gap:7px;transition:border-color .25s,background .25s}
+.locs .loc:hover{border-color:var(--champagne);background:#FFFDF8}
+.locs .badge{align-self:flex-start;font-family:var(--sans);font-size:9px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--champagne);border:1px solid var(--champagne);
+  padding:4px 9px;line-height:1}
+.locs .nm{font-family:var(--serif);font-size:21px;letter-spacing:.02em;margin-top:3px}
+.locs .cap{font-size:13.5px;color:var(--ink-2);line-height:1.6}
+.locs-tease{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+.locs-tease .loc{padding:16px 18px}
+.locs-tease .nm{font-size:18px}
+@media(max-width:520px){
+  .locs{grid-template-columns:1fr}
+  .locs-tease{grid-template-columns:1fr 1fr}
+}
+
+
+/* ---------- concierge ------------------------------------------------------
+   Quiet by default: a small espresso pill, no bounce, no notification dot
+   pretending somebody is waiting. */
+/* The `hidden` attribute is weaker than any class rule that sets display, and
+   it fails silently. .conc-panel sets display:flex, so without this the panel
+   renders open on every page load — it was occupying 197px over the hero and
+   sitting on top of the tagline. Measured, not spotted by eye. */
+[hidden]{display:none !important}
+
+.concierge{position:fixed;right:clamp(14px,3vw,30px);bottom:clamp(14px,3vw,30px);z-index:80}
+.conc-open{display:inline-flex;align-items:center;gap:10px;background:var(--espresso);
+  color:var(--cream);border:1px solid var(--espresso);padding:14px 22px;cursor:pointer;
+  font-family:var(--sans);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+  transition:background .25s,color .25s}
+.conc-open:hover{background:var(--champagne);border-color:var(--champagne);color:var(--espresso)}
+.conc-open .dot{width:6px;height:6px;border-radius:99px;background:var(--champagne)}
+.conc-open:hover .dot{background:var(--espresso)}
+.concierge.open .conc-open{display:none}
+.conc-panel{width:min(370px,calc(100vw - 28px));background:var(--cream);
+  border:1px solid var(--rule-2);display:flex;flex-direction:column;
+  box-shadow:0 26px 60px -22px #28231F59;max-height:min(560px,calc(100vh - 60px))}
+.conc-head{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:18px 20px;background:var(--espresso);color:var(--cream)}
+.conc-t{font-family:var(--serif);font-size:19px;letter-spacing:.04em}
+.conc-s{font-family:var(--sans);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:#FFFDF88F;margin-top:5px}
+.conc-x{background:none;border:0;color:var(--cream);font-size:22px;line-height:1;cursor:pointer;padding:4px 6px}
+.conc-log{padding:18px 20px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:12px}
+.conc-msg{font-size:14.5px;line-height:1.65;padding:12px 15px;max-width:86%}
+.conc-msg.them{background:var(--ivory);border:1px solid var(--rule);align-self:flex-start}
+.conc-msg.me{background:var(--espresso);color:var(--cream);align-self:flex-end}
+.conc-cta{display:block;margin-top:10px;font-family:var(--sans);font-size:10.5px;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--espresso);
+  border-bottom:1px solid var(--champagne);padding-bottom:3px;width:fit-content}
+.conc-chips{display:flex;flex-wrap:wrap;gap:7px;padding:0 20px 8px}
+.conc-chip{background:transparent;border:1px solid var(--rule-2);padding:8px 13px;cursor:pointer;
+  font-family:var(--sans);font-size:12px;color:var(--ink-2)}
+.conc-chip:hover{border-color:var(--champagne);color:var(--espresso)}
+.conc-form{display:flex;gap:0;border-top:1px solid var(--rule)}
+.conc-form input{flex:1;min-width:0;border:0;background:transparent;padding:16px 20px;font-size:14.5px}
+.conc-form input:focus{outline:0}
+.conc-form button{background:var(--espresso);color:var(--cream);border:0;padding:0 22px;
+  cursor:pointer;font-size:17px}
+.conc-form button:hover{background:var(--champagne);color:var(--espresso)}
+@media(max-width:520px){
+  .concierge{right:10px;bottom:10px;left:10px}
+  .conc-panel{width:100%}
+  .conc-open{width:100%;justify-content:center}
+}
