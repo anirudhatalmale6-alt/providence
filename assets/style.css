@@ -1,0 +1,283 @@
+/* ===========================================================================
+   Providence Premium Suites
+   ---------------------------------------------------------------------------
+   The brief asks for quiet luxury, and asks for it to come from typography,
+   photography, spacing and restraint rather than from decoration. So there is
+   no gradient, no shadow on a card, no rounded corner larger than 2px and no
+   gold fill anywhere. Champagne appears only as a hairline, a small mark or a
+   hover — never as a surface.
+
+   Colour budget from the brief: roughly 70% ivory/cream, 20% espresso,
+   10% taupe/champagne. build.py measures the rendered pages against that
+   rather than trusting the intention.
+   =========================================================================== */
+
+:root{
+  --ivory:#F6F1E8;
+  --espresso:#28231F;
+  --champagne:#B39A70;
+  --taupe:#A99C8D;
+  --cream:#FFFDF8;
+
+  --ink-2:#5F574F;          /* espresso softened for body copy */
+  --ink-3:#8C8379;
+  --rule:#A99C8D66;          /* the brief gives dividers to taupe, not to black */
+  --rule-2:#A99C8D;
+
+  --serif:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+  --sans:'Jost',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+
+  --page:1280px;
+  --gut:clamp(20px,4vw,56px);
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{
+  margin:0;background:var(--ivory);color:var(--espresso);
+  font:300 17px/1.75 var(--sans);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+
+h1,h2,h3,h4{
+  font-family:var(--serif);
+  font-weight:300;                    /* the brief: headings not overly bold */
+  line-height:1.12;
+  letter-spacing:.004em;
+  margin:0;
+}
+h1{font-size:clamp(34px,5.6vw,68px)}
+h2{font-size:clamp(27px,3.7vw,44px)}
+h3{font-size:clamp(20px,2.2vw,26px)}
+
+.wrap{max-width:var(--page);margin:0 auto;padding-inline:var(--gut)}
+.narrow{max-width:760px}
+.mut{color:var(--ink-2)}
+
+/* A letter-spaced sans caps line. Used for eyebrows, buttons and the
+   "PREMIUM SUITES" half of the wordmark — it is the brand's second voice. */
+.caps{
+  font-family:var(--sans);font-weight:400;
+  font-size:11px;letter-spacing:.26em;text-transform:uppercase;
+  color:var(--ink-3);
+}
+.caps-c{color:var(--champagne)}
+
+/* ---------- wordmark ---------- */
+.brand{display:inline-block;line-height:1}
+.brand .n{font-family:var(--serif);font-weight:300;font-size:26px;letter-spacing:.1em;
+  text-transform:uppercase;display:block}
+.brand .s{font-family:var(--sans);font-weight:400;font-size:8.5px;letter-spacing:.42em;
+  text-transform:uppercase;color:var(--ink-3);display:block;margin-top:5px;padding-left:.14em}
+.on-dark .brand .n{color:var(--cream)}
+.on-dark .brand .s{color:#FFFDF8A6}
+
+/* ---------- header ---------- */
+.site-head{position:sticky;top:0;z-index:60;background:#F6F1E8F2;
+  backdrop-filter:saturate(1.1) blur(10px);border-bottom:1px solid var(--rule)}
+.site-head .in{display:flex;align-items:center;gap:26px;height:88px}
+@media(max-width:900px){.site-head .in{height:70px}}
+.site-head nav{display:flex;gap:30px;margin-left:auto}
+.site-head nav a{font-size:12px;letter-spacing:.17em;text-transform:uppercase;
+  font-weight:400;color:var(--ink-2);padding-block:6px;position:relative}
+.site-head nav a::after{content:"";position:absolute;left:0;right:100%;bottom:0;height:1px;
+  background:var(--champagne);transition:right .32s cubic-bezier(.22,.61,.36,1)}
+.site-head nav a:hover::after,.site-head nav a[aria-current]::after{right:0}
+.site-head nav a[aria-current]{color:var(--espresso)}
+@media(max-width:900px){.site-head nav{display:none}}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;
+  font-family:var(--sans);font-weight:400;font-size:11.5px;letter-spacing:.2em;
+  text-transform:uppercase;padding:15px 30px;border:1px solid var(--espresso);
+  background:var(--espresso);color:var(--cream);cursor:pointer;
+  transition:background .25s,color .25s,border-color .25s}
+.btn:hover{background:transparent;color:var(--espresso)}
+.btn-ghost{background:transparent;color:var(--espresso)}
+.btn-ghost:hover{background:var(--espresso);color:var(--cream)}
+.btn-light{background:var(--cream);border-color:var(--cream);color:var(--espresso)}
+.btn-light:hover{background:transparent;color:var(--cream)}
+.btn-outline-light{background:transparent;border-color:#FFFDF880;color:var(--cream)}
+.btn-outline-light:hover{background:var(--cream);color:var(--espresso);border-color:var(--cream)}
+.btn-sm{padding:12px 22px;font-size:10.5px}
+.btn-full{width:100%}
+
+.burger{display:none;margin-left:auto;background:none;border:0;padding:10px;cursor:pointer}
+.burger span{display:block;width:22px;height:1px;background:var(--espresso);margin:5px 0;
+  transition:transform .3s,opacity .3s}
+@media(max-width:900px){.burger{display:block}}
+.mobnav{display:none;border-top:1px solid var(--rule);background:var(--ivory)}
+.mobnav.open{display:block}
+.mobnav a{display:block;padding:17px var(--gut);font-size:13px;letter-spacing:.18em;
+  text-transform:uppercase;border-bottom:1px solid var(--rule)}
+.mobnav .btn{margin:18px var(--gut) 26px;width:calc(100% - var(--gut) * 2)}
+
+/* ---------- hero ---------- */
+.hero{position:relative;min-height:min(92vh,860px);display:grid;align-items:end;
+  background:var(--espresso);overflow:hidden}
+.hero .bg{position:absolute;inset:0}
+.hero .bg img{width:100%;height:100%;object-fit:cover}
+/* Two gradients, not one. A single bottom-up scrim left 41% of the headline's
+   backdrop below 4.5:1 where the photograph has a bright window behind the
+   text — the AVERAGE was a comfortable 4.86:1, which is exactly why averaging
+   is the wrong measure. The second gradient weights the side the text sits on.
+   check.py measures the real backdrop and fails if it slips again. */
+.hero .scrim{position:absolute;inset:0;
+  background:
+    linear-gradient(to top,#28231FE8 0%,#28231FA6 34%,#28231F5E 64%,#28231F2E 100%),
+    linear-gradient(to right,#28231F87 0%,#28231F45 48%,#28231F14 76%,transparent 100%)}
+.hero .in{position:relative;padding-block:clamp(48px,9vh,110px);color:var(--cream)}
+.hero h1{color:var(--cream);font-size:clamp(32px,6vw,74px);letter-spacing:.06em;
+  text-transform:uppercase;max-width:16ch}
+.hero .tag{font-family:var(--serif);font-style:italic;font-size:clamp(18px,2.3vw,27px);
+  color:#FFFDF8DE;margin-top:20px;max-width:34ch}
+.hero .acts{display:flex;flex-wrap:wrap;gap:14px;margin-top:38px}
+.hero .rule{width:56px;height:1px;background:var(--champagne);margin-bottom:26px}
+.hero-sm{min-height:min(56vh,520px)}
+.hero-sm h1{font-size:clamp(30px,4.6vw,54px)}
+
+/* ---------- sections ---------- */
+section{padding-block:clamp(64px,9vw,132px)}
+.sec-cream{background:var(--cream)}
+/* Taupe as a secondary surface, which is what the brief assigns it. Used on
+   supporting bands only — it is a pause between ivory sections, never the
+   page. */
+.sec-taupe{background:var(--taupe);color:var(--espresso)}
+.sec-taupe .caps{color:#28231FA6}
+.sec-taupe .standard .item{border-top-color:#28231F40}
+.sec-taupe p{color:#28231FC9}
+.sec-taupe .lede{color:#28231FD9}
+.sec-dark{background:var(--espresso);color:var(--cream)}
+.sec-dark h2,.sec-dark h3{color:var(--cream)}
+.sec-dark .mut{color:#FFFDF8B8}
+.sec-dark .caps{color:#FFFDF894}
+.sec-tight{padding-block:clamp(44px,6vw,84px)}
+
+.eyebrow{display:block;margin-bottom:22px}
+.lede{font-family:var(--serif);font-size:clamp(20px,2.4vw,29px);line-height:1.5;
+  color:var(--ink-2);font-weight:300}
+.sec-dark .lede{color:#FFFDF8CC}
+.body-copy{margin-top:26px;max-width:62ch;color:var(--ink-2);font-size:16.5px}
+.body-copy p + p{margin-top:18px}
+
+.hr{height:1px;background:var(--rule);border:0;margin:0}
+.hr-c{height:1px;background:var(--champagne);border:0;width:56px;margin:0 0 26px}
+
+/* ---------- the image system ----------------------------------------------
+   Every photographic slot on the site is a .shot. It holds its aspect ratio
+   whether or not a photograph exists yet, so the layout never moves when the
+   real photography lands. Where there is no file, the slot renders as a
+   composed frame naming the shot that belongs there — which doubles as the
+   brief for the photographer. */
+.shot{position:relative;overflow:hidden;background:var(--taupe)}
+.shot img{width:100%;height:100%;object-fit:cover;display:block}
+.shot.placeholder{
+  background:
+    linear-gradient(150deg,#EFE8DB 0%,#E3D9C9 48%,#D8CCB9 100%);
+  display:grid;place-items:center;text-align:center;
+}
+.shot.placeholder::before{
+  content:"";position:absolute;inset:14px;border:1px solid #B39A7059;pointer-events:none;
+}
+.shot.placeholder .pl{padding:26px;max-width:30ch}
+.shot.placeholder .pl .mark{font-family:var(--serif);font-size:23px;letter-spacing:.14em;
+  color:#8A7A62;text-transform:uppercase}
+.shot.placeholder .pl .what{font-family:var(--sans);font-size:10px;letter-spacing:.24em;
+  text-transform:uppercase;color:#8A7A62;margin-top:12px;line-height:2}
+.shot.placeholder .pl .note{font-family:var(--sans);font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;color:#A2957F;margin-top:16px}
+.ar-hero{aspect-ratio:16/9}
+.ar-wide{aspect-ratio:3/2}
+.ar-tall{aspect-ratio:4/5}
+.ar-sq{aspect-ratio:1/1}
+
+/* ---------- residences ---------- */
+.residence{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);
+  gap:clamp(28px,5vw,72px);align-items:center}
+.residence + .residence{margin-top:clamp(56px,8vw,120px)}
+.residence.flip > .shot{order:2}
+@media(max-width:880px){
+  .residence{grid-template-columns:1fr;gap:26px}
+  .residence.flip > .shot{order:0}
+}
+.residence .meta{font-size:12px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink-3);margin-top:18px}
+.residence .meta span + span::before{content:"·";margin:0 10px;color:var(--champagne)}
+.residence h3{margin-top:14px;font-size:clamp(26px,3vw,38px)}
+.residence .where{font-size:13px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--champagne);margin-top:10px}
+.residence p{margin-top:20px;color:var(--ink-2);font-size:16px}
+.residence .go{display:inline-block;margin-top:28px}
+
+/* ---------- the providence standard ---------- */
+.standard{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(24px,3vw,48px)}
+@media(max-width:900px){.standard{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.standard{grid-template-columns:1fr;gap:34px}}
+.standard .item{border-top:1px solid var(--champagne);padding-top:24px}
+.standard h3{font-size:21px;margin-bottom:12px}
+.standard p{font-size:15px;color:var(--ink-2);line-height:1.7}
+.sec-dark .standard .item{border-top-color:#B39A7099}
+.sec-dark .standard p{color:#FFFDF8B0}
+
+/* ---------- property page ---------- */
+.gallery{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.gallery .shot:first-child{grid-column:span 4;aspect-ratio:16/8}
+@media(max-width:760px){
+  .gallery{grid-template-columns:repeat(2,1fr)}
+  .gallery .shot:first-child{grid-column:span 2;aspect-ratio:4/3}
+}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,368px);
+  gap:clamp(32px,5vw,76px);align-items:start}
+@media(max-width:960px){.split{grid-template-columns:1fr}}
+.facts{width:100%;border-collapse:collapse}
+.facts th,.facts td{text-align:left;font-weight:400;padding:15px 0;
+  border-bottom:1px solid var(--rule);font-size:15px;vertical-align:top}
+.facts th{color:var(--ink-3);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;
+  width:46%;padding-right:18px}
+.facts tr:last-child th,.facts tr:last-child td{border-bottom:0}
+.amenities{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 30px;margin-top:26px}
+@media(max-width:760px){.amenities{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.amenities li{list-style:none;font-size:15px;color:var(--ink-2);padding-left:20px;position:relative}
+.amenities li::before{content:"";position:absolute;left:0;top:.72em;width:8px;height:1px;
+  background:var(--champagne)}
+.bookcard{background:var(--cream);border:1px solid var(--rule);padding:30px}
+.bookcard .from{font-family:var(--serif);font-size:34px;line-height:1}
+.bookcard .from small{font-family:var(--sans);font-size:11px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--ink-3);display:block;margin-top:10px}
+.field{margin-top:18px}
+.field label{display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ink-3);margin-bottom:8px}
+.field input,.field select,.field textarea{width:100%;padding:14px 15px;border:1px solid var(--rule-2);
+  background:var(--cream);font-size:15px;font-weight:300;color-scheme:light;border-radius:0}
+.field input:focus,.field select:focus,.field textarea:focus{outline:0;border-color:var(--champagne)}
+.field textarea{min-height:130px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:520px){.two{grid-template-columns:1fr}}
+
+/* ---------- notes / disclosure ---------- */
+.note{border-left:1px solid var(--champagne);padding:4px 0 4px 22px;margin-top:30px}
+.note .caps{margin-bottom:8px;display:block}
+.note p{font-size:14.5px;color:var(--ink-2);line-height:1.75}
+
+/* ---------- footer ---------- */
+.site-foot{background:var(--espresso);color:var(--cream);padding-block:clamp(52px,7vw,88px)}
+.site-foot .cols{display:grid;grid-template-columns:minmax(0,1.4fr) repeat(3,minmax(0,1fr));
+  gap:clamp(26px,4vw,54px)}
+@media(max-width:900px){.site-foot .cols{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.site-foot .cols{grid-template-columns:1fr;gap:34px}}
+.site-foot h4{font-family:var(--sans);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;
+  color:#FFFDF88C;margin-bottom:18px;font-weight:400}
+.site-foot a{display:block;font-size:14px;color:#FFFDF8C4;padding-block:6px}
+.site-foot a:hover{color:var(--champagne)}
+.site-foot .about{font-size:14.5px;color:#FFFDF8B0;margin-top:22px;max-width:38ch;line-height:1.75}
+.site-foot .legal{margin-top:clamp(38px,5vw,62px);padding-top:26px;border-top:1px solid #FFFDF826;
+  font-size:12.5px;color:#FFFDF88C;line-height:1.9}
+.site-foot .legal b{font-weight:400;color:#FFFDF8C4}
+.tbc{border-bottom:1px dotted var(--champagne);color:var(--champagne)}
+
+.skip{position:absolute;left:-9999px}
+.skip:focus{left:12px;top:12px;z-index:99;background:var(--espresso);color:var(--cream);padding:12px 18px}

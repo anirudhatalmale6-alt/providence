@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://anirudhatalmale6-alt.github.io/providence/sitemap.xml
