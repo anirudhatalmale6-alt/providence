@@ -487,6 +487,43 @@ with sync_playwright() as p:
     words_on_page = len(page_text.split())
     ok("the page is short (%d words)" % words_on_page, words_on_page <= 220, words_on_page)
 
+    # The opening headline is cream type over a photograph, and the photograph
+    # can change. Measure the backdrop it actually lands on -- the WORST
+    # pixels, not the mean, because a bright duvet or window fails locally
+    # while the average stays comfortable.
+    import io as _io2
+    from PIL import Image as _Img2
+    CREAM = (255, 253, 248)
+    for w, h, tag in ((1360, 820, "desktop"), (390, 844, "phone")):
+        pg.set_viewport_size({"width": w, "height": h})
+        pg.goto("%s/residences.html" % BASE, wait_until="load"); pg.wait_for_timeout(1100)
+        box = pg.eval_on_selector("section.stage .display",
+            "e=>{const r=e.getBoundingClientRect();"
+            "return {x:r.x,y:r.y,width:r.width,height:r.height}}")
+        pg.eval_on_selector("section.stage .display", "e=>e.style.visibility='hidden'")
+        pg.wait_for_timeout(150)
+        im = _Img2.open(_io2.BytesIO(pg.screenshot(clip=box))).convert("RGB")
+        pg.eval_on_selector("section.stage .display", "e=>e.style.visibility=''")
+        rs = sorted(contrast(im.getpixel((x, y)), CREAM)
+                    for y in range(0, im.height, 3) for x in range(0, im.width, 3))
+        p1 = rs[max(0, int(len(rs) * 0.01))]
+        share_below = 100.0 * sum(1 for r in rs if r < 4.5) / len(rs)
+        ok("Collection headline legible on %s (p1 %.2f:1)" % (tag, p1), p1 >= 4.5, round(p1, 2))
+        ok("and almost none of it is below 4.5 on %s (%.1f%%)" % (tag, share_below),
+           share_below <= 2.0, round(share_below, 1))
+    pg.set_viewport_size({"width": 1440, "height": 900})
+    pg.goto("%s/residences.html" % BASE, wait_until="load"); pg.wait_for_timeout(700)
+    page_text = pg.inner_text("main")
+
+    # the two pages must not open on the same photograph
+    coll_hero = pg.eval_on_selector("section.stage .shot img", "e=>e.getAttribute('src')")
+    pg.goto("%s/index.html" % BASE, wait_until="load"); pg.wait_for_timeout(500)
+    home_hero = pg.eval_on_selector(".hero .bg img, section.stage .shot img",
+                                    "e=>e.getAttribute('src')")
+    ok("Home and Collection do not open on the same image",
+       coll_hero != home_hero, (home_hero, coll_hero))
+    pg.goto("%s/residences.html" % BASE, wait_until="load"); pg.wait_for_timeout(700)
+
     # and it must still be the five sections she listed, in order
     heads = pg.eval_on_selector_all("main h1, main h2",
                                     "e=>e.map(x=>x.textContent.trim().replace(/\s+/g,' '))")

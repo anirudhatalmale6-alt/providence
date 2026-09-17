@@ -627,7 +627,7 @@ def build_residences():
     body = f"""
 <!-- ===== 1. The Providence Collection ===== -->
 <section class="stage stage-tall bleed-full" style="padding:0;display:grid;align-items:end">
-  <div class="shot zoom reveal in"><img src="img/d-tall.jpg" alt="A Providence interior"></div>
+  <div class="shot zoom reveal in"><img src="img/c02.jpg" alt="A Providence interior"></div>
   <div class="veil"></div>
   <div class="wrap on">
     <div class="reveal in">
