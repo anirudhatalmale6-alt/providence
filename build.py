@@ -48,7 +48,7 @@ RESIDENCES = [
         "slug": "vauxhall-residence",
         "name": "Vauxhall Residence",
         "where": "London, SW8",
-        "meta": ["1 Bedroom", "Sleeps 2", "Thames Riverside", "Fast Wi-Fi", "Fully Equipped"],
+        "meta": ["1 Bedroom", "Sleeps 2", "Thames Riverside", "Fast Wi‑Fi", "Fully Equipped"],
         "hero": "img/c16.jpg",
         "intro": "A calm one-bedroom residence moments from the river, arranged for "
                  "long evenings and early starts in equal measure.",

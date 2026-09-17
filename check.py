@@ -426,7 +426,8 @@ with sync_playwright() as p:
        pg.eval_on_selector_all("#dubai .shot img", "e=>e.length") == 1)
 
     # --- the attribute line -------------------------------------------------
-    meta = pg.inner_text(".meta").lower()
+    # U+2011 non-breaking hyphen renders as "-" but never breaks
+    meta = pg.inner_text(".meta").lower().replace("\u2011", "-")
     for want in ("1 bedroom", "sleeps 2", "thames riverside", "fast wi-fi", "fully equipped"):
         ok("attribute %r" % want, want in meta, meta)
     ok("database wording is gone", "river location" not in pg.inner_text("body").lower())
@@ -479,7 +480,57 @@ with sync_playwright() as p:
                 tightest = g
     ok("nothing touches inside a stacked split on a phone",
        tightest is not None and tightest >= 20, tightest)
+
+    # An attribute may wrap at a space, but never at a hyphen: "FAST WI-" on
+    # one line and "FI" on the next reads as a typo. white-space:nowrap was
+    # the wrong cure -- build.py emits the spans with no whitespace between
+    # them, so nowrap removed every break opportunity and took the page 214px
+    # sideways. The real rule is a data rule: a hyphen inside an attribute has
+    # to be U+2011, which renders identically and never breaks.
+    for path in ("index.html", "residences.html"):
+        pg.goto("%s/%s" % (BASE, path), wait_until="load"); pg.wait_for_timeout(350)
+        texts = pg.eval_on_selector_all(".meta span,.facts span",
+                                        "es=>es.map(e=>e.textContent)")
+        ok("%s has attributes to check" % path, len(texts) >= 3, len(texts))
+        breakable = [t for t in texts if "-" in t]
+        ok("%s: no attribute can break at a hyphen" % path, not breakable, breakable)
+        ok("%s: Wi-Fi is written with a non-breaking hyphen" % path,
+           any("Wi\u2011Fi" in t for t in texts), texts)
     pg.set_viewport_size({"width": 1440, "height": 900})
+
+    # Small type on the near-black sections. The computed colour here carries
+    # an alpha, so it MUST be composited against the background before the
+    # ratio is taken -- reading the rgba triple straight off gave 18:1 for
+    # type that actually sits at 6.3:1.
+    pg.goto("%s/index.html" % BASE, wait_until="load"); pg.wait_for_timeout(700)
+    def composited(sel):
+        return pg.eval_on_selector(sel, """e=>{
+            const cs=getComputedStyle(e);
+            const p=(s)=>s.match(/[\d.]+/g).map(Number);
+            const fg=p(cs.color);
+            let n=e, bg=null;
+            while(n && n!==document.documentElement){
+                const b=p(getComputedStyle(n).backgroundColor);
+                if((b[3]===undefined?1:b[3])>0.99){bg=b.slice(0,3);break}
+                n=n.parentElement;
+            }
+            if(!bg) bg=[255,255,255];
+            const a=fg[3]===undefined?1:fg[3];
+            return [0,1,2].map(i=>a*fg[i]+(1-a)*bg[i]).concat(bg);
+        }""")
+    def ratio(fg, bg):
+        f=lambda v:(v/255)/12.92 if v/255<=0.03928 else (((v/255)+0.055)/1.055)**2.4
+        L=lambda c:.2126*f(c[0])+.7152*f(c[1])+.0722*f(c[2])
+        a,b2=L(fg),L(bg); hi,lo=max(a,b2),min(a,b2)
+        return (hi+.05)/(lo+.05)
+    for sel, label in ((".sec-char .meta", "the attribute line on the dark section"),
+                       (".sec-char .body-copy", "body copy on the dark section"),
+                       (".pillars .desc", "the Providence Standard descriptions")):
+        if pg.locator(sel).count() == 0:
+            continue
+        v = composited(sel)
+        r = ratio(v[:3], v[3:])
+        ok("%s is legible (%.2f:1)" % (label, r), r >= 4.5, round(r, 2))
     pg.set_viewport_size({"width": 1440, "height": 900})
     pg.goto("%s/residences.html" % BASE, wait_until="load"); pg.wait_for_timeout(450)
 
