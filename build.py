@@ -48,7 +48,7 @@ RESIDENCES = [
         "slug": "vauxhall-residence",
         "name": "Vauxhall Residence",
         "where": "London, SW8",
-        "meta": ["1 Bedroom", "2 Guests", "River Location"],
+        "meta": ["1 Bedroom", "Sleeps 2", "Thames Riverside", "Fast Wi-Fi", "Fully Equipped"],
         "hero": "img/c16.jpg",
         "intro": "A calm one-bedroom residence moments from the river, arranged for "
                  "long evenings and early starts in equal measure.",
@@ -99,7 +99,7 @@ RESIDENCES = [
             ("The view", "River and city, from the window"),
         ],
         "title": "Vauxhall Residence — Serviced Apartment in Vauxhall, London SW8",
-        "desc": "A one-bedroom serviced apartment in Vauxhall, London SW8. River location, "
+        "desc": "A one-bedroom serviced apartment in Vauxhall, London SW8. Thames riverside, "
                 "full kitchen, fast broadband and self check-in. Short stays and extended "
                 "corporate bookings.",
     },
@@ -107,62 +107,63 @@ RESIDENCES = [
 
 
 # --------------------------------------------------------------------------
-# Locations being prepared. Deliberately presented as PLACES with a caption,
-# not as apartments with invented bedroom counts and rates — a "coming soon"
-# badge on a location is a statement of intent, which is hers to make. A
-# coming-soon badge on a fabricated apartment would be a claim about stock
-# that does not exist.
+# Locations.
+#
+# Split deliberately into two lists, because they are two different claims:
+#
+#   SECURED   a property is actually taken and being prepared for opening.
+#             This is a promise. It must never contain a place we merely
+#             intend to enter.
+#   FUTURE    places Providence intends to operate in. An intention, not an
+#             inventory.
+#
+# "Being prepared" across forty-four locations reads as forty-four secured
+# properties. A guest or a landlord who later discovers otherwise has been
+# misled by us, and the rest of the site is working hard to earn their trust.
 # --------------------------------------------------------------------------
-COMING_SOON = {
-    "London": [
-        ("Canary Wharf",      "Riverside towers and the business district on the doorstep."),
-        ("Victoria",          "Terminals, Westminster and the parks within a short walk."),
-        ("Pimlico",           "Quiet white stucco streets between the river and Victoria."),
-        ("Westminster",       "The Abbey, the river and Whitehall at the end of the road."),
-        ("West End",          "Theatre, dining and the heart of central London."),
-        ("Soho",              "Late tables, small rooms and the best of the city at night."),
-        ("Piccadilly Circus", "The centre of everything, for guests who want to walk."),
-        ("Leicester Square",  "Cinemas, Chinatown and Covent Garden minutes away."),
-        ("Covent Garden",     "Cobbles, the piazza and the market under the arcades."),
-        ("Mayfair",           "Quiet garden squares, galleries and the finest addresses."),
-        ("Belgravia",         "Cream façades, embassies and a stillness rare in zone one."),
-        ("Oxford Street",     "For guests who want the shops beneath the window."),
-        ("Notting Hill",      "Pastel terraces, Portobello and a village pace."),
-        ("Marylebone",        "The high street, the village feel and Regent's Park."),
-        ("Holborn",           "Between the City and the West End, walkable to both."),
-        ("Bloomsbury",        "Garden squares, the museum and the university quarter."),
-        ("Fitzrovia",         "Restaurants, studios and a quieter side of the centre."),
-        ("Earls Court",       "Well connected, residential, with easy access west."),
-        ("Hyde Park",         "The park on one side, Knightsbridge on the other."),
-        ("South Kensington",  "The museums, the gardens and the Cromwell Road."),
-        ("Charing Cross",     "The river, Trafalgar Square and the trains south."),
-        ("London Bridge",     "The Shard, Borough Market and the south bank."),
-        ("King's Cross",      "The Eurostar, the canal and a quarter transformed."),
-        ("Euston",            "Trains north, with Bloomsbury and Regent's Park nearby."),
-        ("Paddington",        "The Heathrow Express and the canal at Little Venice."),
-        ("Bayswater",         "Between the park and Notting Hill, quietly residential."),
-        ("Liverpool Street",  "The City, Spitalfields and the trains east."),
-        ("Clerkenwell",       "Design studios, old workshops and very good food."),
-        ("Farringdon",        "The Elizabeth line and the edge of the City."),
-        ("City of London",    "The square mile, calm at weekends, busy at eight."),
-        ("Shoreditch",        "Galleries, markets and the most alive part of the east."),
-        ("Spitalfields",      "The market, Georgian streets and the City beside it."),
-        ("Tower Hill",        "The Tower, the bridge and the river path east."),
-        ("Waterloo",          "The South Bank, the trains south and the river walk."),
-        ("Vauxhall",          "The river, the Victoria line and Nine Elms nearby."),
-        ("Kennington",        "Georgian terraces, the park and the Oval."),
-    ],
-    "Dubai": [
-        ("Dubai Marina",      "The promenade, the yachts and the towers above them."),
-        ("Downtown Dubai",    "The Burj, the fountains and the Dubai Mall below."),
-        ("Palm Jumeirah",     "Beachfront residences and the water on three sides."),
-        ("Business Bay",      "The canal, the offices and Downtown a few minutes away."),
-        ("Jumeirah Beach Residence", "The beach, The Walk and the sea air."),
-        ("DIFC",              "The financial centre, the galleries and the restaurants."),
-        ("City Walk",         "Low-rise, walkable and close to Jumeirah."),
-        ("Bluewaters Island", "The wheel, the beach club and the marina beyond."),
-    ],
-}
+
+SECURED = []          # nothing yet beyond Vauxhall, which is a live residence
+
+FUTURE_LONDON = [
+    ("Central London",
+     ["Mayfair", "Soho", "Covent Garden", "Westminster", "Victoria", "Belgravia",
+      "West End", "Piccadilly Circus", "Leicester Square", "Charing Cross",
+      "Oxford Street", "Holborn", "Bloomsbury", "Fitzrovia", "Marylebone"]),
+    ("West London",
+     ["Notting Hill", "South Kensington", "Earls Court", "Bayswater",
+      "Paddington", "Hyde Park"]),
+    ("City & East",
+     ["Liverpool Street", "Shoreditch", "Spitalfields", "Clerkenwell",
+      "Farringdon", "City of London", "Tower Hill", "Canary Wharf"]),
+    ("North",
+     ["King's Cross", "Euston"]),
+    ("South & Riverside",
+     ["Vauxhall", "Waterloo", "London Bridge", "Kennington", "Pimlico"]),
+]
+
+# Four, not eight. A short list of intended neighbourhoods reads as considered;
+# a long one reads as a search-engine page.
+FUTURE_DUBAI = ["Dubai Marina", "Downtown Dubai", "Palm Jumeirah", "Business Bay"]
+
+# The product promise, from her brief. Six principles, applied to every
+# residence — this is what makes it a standard rather than a description.
+STANDARD = [
+    ("Location",      "Well-connected, desirable neighbourhoods."),
+    ("Light & Space", "Homes that feel good to spend time in."),
+    ("Sleep",         "Excellent mattresses, pressed bedding and proper blackout."),
+    ("Work",          "Reliable high-speed Wi-Fi and a comfortable place to work."),
+    ("Living",        "Fully equipped kitchens and genuinely usable living space."),
+    ("Service",       "Responsive Providence support throughout the stay."),
+]
+
+# One constant. She wants a stronger promise once the operation can keep it —
+# changing it is this line, and nothing else.
+CONCIERGE_PROMISE = "Usually replies the same day"
+
+# She asked me to explore dropping "Premium Suites" from the customer-facing
+# wordmark. It is one constant, so switching is a single edit and the legal
+# trading name is unaffected.
+BRAND_SUB = "Premium Suites"          # alternative: "Serviced Residences · London"
 
 # --------------------------------------------------------------------------
 
@@ -259,7 +260,7 @@ def header(active, depth=0):
     return f"""<header class="site-head">
   <div class="wrap in">
     <a class="brand" href="{up}index.html" aria-label="{esc(BRAND)} — home">
-      <span class="n">Providence</span><span class="s">Premium Suites</span>
+      <span class="n">Providence</span><span class="s">{esc(BRAND_SUB)}</span>
     </a>
     <nav>{links}</nav>
     <a class="btn btn-sm" href="{up}book.html" id="navBook">Book</a>
@@ -293,7 +294,7 @@ def footer(depth=0):
     <div class="cols">
       <div>
         <a class="brand" href="{up}index.html">
-          <span class="n">Providence</span><span class="s">Premium Suites</span>
+          <span class="n">Providence</span><span class="s">{esc(BRAND_SUB)}</span>
         </a>
         <p class="about">Thoughtfully presented serviced residences in London, for short city
         stays and extended corporate visits.</p>
@@ -336,7 +337,7 @@ def footer(depth=0):
     <div class="conc-head">
       <div>
         <div class="conc-t">Providence Concierge</div>
-        <div class="conc-s">Usually replies the same day</div>
+        <div class="conc-s">{esc(CONCIERGE_PROMISE)}</div>
       </div>
       <button class="conc-x" id="concClose" aria-label="Close">&times;</button>
     </div>
@@ -382,33 +383,53 @@ ORG_LD = {
 # ==========================================================================
 
 
-def coming_soon_section(heading_level="h2"):
-    """The locations being prepared, London then Dubai."""
-    out = []
-    for place, items in COMING_SOON.items():
-        tiles = "".join(
-            '<li class="loc"><span class="badge">Coming soon</span>'
-            '<span class="nm">%s</span><span class="cap">%s</span></li>' % (esc(n), esc(c))
-            for n, c in items)
-        out.append(
-            '<div class="comingblock">'
-            '<div class="comingtop"><h3>%s</h3><span class="caps">%d locations being prepared</span></div>'
-            '<ul class="locs">%s</ul></div>' % (esc(place), len(items), tiles))
-    return "".join(out)
+def secured_section():
+    """Places actually taken. Renders nothing while the list is empty, which
+    is the honest state — an empty promise is worse than no promise."""
+    if not SECURED:
+        return ""
+    tiles = "".join('<li class="loc"><span class="badge">Coming soon</span>'
+                    '<span class="nm">%s</span><span class="cap">%s</span></li>' % (esc(n), esc(c))
+                    for n, c in SECURED)
+    return ('<div class="comingblock"><div class="comingtop"><h3>Opening soon</h3>'
+            '<span class="caps">Secured and in preparation</span></div>'
+            '<ul class="locs">%s</ul></div>' % tiles)
 
 
-def build_home():
-    # a short taste on the home page; the full list lives on the Collection page
-    pick = [n for n, _ in COMING_SOON["London"][:8]] + [n for n, _ in COMING_SOON["Dubai"][:3]]
-    tease = "".join('<li class="loc"><span class="badge">Coming soon</span>'
-                    '<span class="nm">%s</span></li>' % esc(n) for n in pick)
-    cards = ""
+def future_london_section():
+    """Intended locations, grouped by part of London.
+
+    Thirty-six identical rows read as a search-engine page. Five groups of
+    names read as somebody who knows the city.
+    """
+    groups = "".join(
+        '<div class="areagroup"><h4>%s</h4><p class="areanames">%s</p></div>'
+        % (esc(area), " &middot; ".join(esc(n) for n in names))
+        for area, names in FUTURE_LONDON)
+    return '<div class="areas">%s</div>' % groups
+
+
+def providence_standard(dark=False):
+    items = "".join('<div class="item"><h3>%s</h3><p>%s</p></div>' % (esc(k), esc(v))
+                    for k, v in STANDARD)
+    return '<div class="standard standard-6">%s</div>' % items
+
+
+def eyebrow_for(i):
+    """Her point: with one residence live, "Residence 01" followed by "the
+    collection is growing" advertises how small we are. "The first Providence
+    residence" reads as inaugural instead — the same fact, told as intent."""
+    return "The first Providence residence" if i == 0 else "Residence %02d" % (i + 1)
+
+
+def _residence_cards(depth_prefix=""):
+    out = ""
     for i, r in enumerate(RESIDENCES):
-        cards += f"""
+        out += f"""
       <article class="residence{' flip' if i % 2 else ''}">
         {shot("ar-wide", r["hero"], r["name"] + ", " + r["where"], r["name"], "Sitting room — wide")}
         <div>
-          <span class="caps caps-c">Residence {i+1:02d}</span>
+          <span class="caps caps-c">{eyebrow_for(i)}</span>
           <h3>{esc(r["name"])}</h3>
           <div class="where">{esc(r["where"])}</div>
           <div class="meta">{"".join("<span>%s</span>" % esc(m) for m in r["meta"])}</div>
@@ -416,7 +437,12 @@ def build_home():
           <a class="btn btn-ghost btn-sm go" href="residences/{r['slug']}.html">View residence</a>
         </div>
       </article>"""
+    return out
 
+
+def build_home():
+    cards = _residence_cards()
+    standard = providence_standard()
     body = f"""
 <section class="hero" style="padding:0">
   <div class="bg">{shot("", "img/c16.jpg", "A Providence residence in London")}</div>
@@ -448,36 +474,30 @@ def build_home():
 <section>
   <div class="wrap">
     <span class="caps eyebrow">The collection</span>
-    <h2>The Providence Collection</h2>\n    <p class="lede" style="margin-top:18px;max-width:46ch">Thoughtfully selected residences across London.</p>
+    <h2>The Providence Collection</h2>
+    <p class="lede" style="margin-top:18px;max-width:48ch">Thoughtfully selected residences across London.</p>
     <div style="margin-top:clamp(38px,5vw,68px)">{cards}</div>
-  </div>
-</section>
-
-<section class="sec-cream">
-  <div class="wrap">
-    <span class="caps eyebrow">In preparation</span>
-    <h2>Coming next</h2>
-    <p class="lede" style="margin-top:18px;max-width:52ch">Residences being prepared across central
-    London, and a first collection in Dubai.</p>
-    <ul class="locs locs-tease" style="margin-top:clamp(30px,4vw,48px)">{tease}</ul>
-    <a class="btn btn-ghost btn-sm" href="residences.html" style="margin-top:30px">See every location</a>
   </div>
 </section>
 
 <section class="sec-dark">
   <div class="wrap">
     <span class="caps eyebrow">Our standards</span>
-    <h2 style="margin-bottom:clamp(38px,5vw,64px)">The Providence Standard</h2>
-    <div class="standard">
-      <div class="item"><h3>Thoughtfully Selected</h3>
-        <p>Residences chosen for their location, comfort and quality.</p></div>
-      <div class="item"><h3>Beautifully Presented</h3>
-        <p>Considered interiors designed to make every stay feel special.</p></div>
-      <div class="item"><h3>Effortless Stays</h3>
-        <p>Simple check-in, clear communication and responsive guest support.</p></div>
-      <div class="item"><h3>Prime Locations</h3>
-        <p>Well-connected residences positioned for business and leisure.</p></div>
-    </div>
+    <h2>The Providence Standard</h2>
+    <p class="lede" style="margin-top:18px;max-width:56ch">Every Providence residence is chosen and
+    prepared around the same six things.</p>
+    <div style="margin-top:clamp(38px,5vw,64px)">{standard}</div>
+  </div>
+</section>
+
+<section class="sec-cream">
+  <div class="wrap narrow" style="text-align:center">
+    <span class="caps eyebrow" style="display:inline-block">Expansion</span>
+    <h2>Growing, carefully</h2>
+    <p class="lede" style="margin-top:20px">We are actively expanding the Providence Collection
+    across London, with Dubai to follow. A residence joins the collection only when the building,
+    the light and the location are right.</p>
+    <a class="btn btn-ghost" href="residences.html" style="margin-top:30px">Where we are going next</a>
   </div>
 </section>
 
@@ -505,24 +525,18 @@ def build_home():
 
 
 def build_residences():
-    cards = ""
-    for i, r in enumerate(RESIDENCES):
-        cards += f"""
-      <article class="residence{' flip' if i % 2 else ''}">
-        {shot("ar-wide", r["hero"], r["name"], r["name"], "Sitting room — wide")}
-        <div>
-          <span class="caps caps-c">Residence {i+1:02d}</span>
-          <h3>{esc(r["name"])}</h3>
-          <div class="where">{esc(r["where"])}</div>
-          <div class="meta">{"".join("<span>%s</span>" % esc(m) for m in r["meta"])}</div>
-          <p>{esc(r["intro"])}</p>
-          <a class="btn btn-ghost btn-sm go" href="residences/{r['slug']}.html">View residence</a>
-        </div>
-      </article>"""
-    coming = coming_soon_section()
+    cards = _residence_cards()
+    secured = secured_section()
+    london = future_london_section()
+    dubai = " &middot; ".join(esc(n) for n in FUTURE_DUBAI)
+    wherepick = "<option>No preference</option>" + "".join(
+        "<option>%s</option>" % esc(n)
+        for _area, names in FUTURE_LONDON for n in names) + "".join(
+        "<option>%s (Dubai)</option>" % esc(n) for n in FUTURE_DUBAI)
+    shot_corp = shot("ar-tall", None, "", "Providence", "Workspace detail — desk, light, coffee")
     body = f"""
 <section class="hero hero-sm" style="padding:0">
-  <div class="bg">{shot("", "img/c02.jpg", "A Providence residence", up="")}</div>
+  <div class="bg">{shot("", "img/c02.jpg", "A Providence residence")}</div>
   <div class="scrim"></div>
   <div class="wrap in">
     <div class="rule"></div>
@@ -539,28 +553,83 @@ def build_residences():
       feels the same wherever in London you happen to be.</p>
     </div>
     <div style="margin-top:clamp(44px,6vw,80px)">{cards}</div>
-    <div class="note" style="margin-top:clamp(44px,6vw,72px);max-width:60ch">
-      <span class="caps">The collection is growing</span>
-      <p>Further residences are being prepared. If you are looking for something specific
-      &mdash; a particular area, a longer stay or more space &mdash; do get in touch and we
-      will tell you what is coming.</p>
+    <div class="note" style="margin-top:clamp(44px,6vw,72px);max-width:62ch">
+      <span class="caps">The collection is expanding</span>
+      <p>Providence opens a residence only when the building, the light and the location are right,
+      which is why the collection grows slowly. If you are looking for something specific &mdash; a
+      particular area, a longer stay or more space &mdash; tell us and we will let you know what is
+      coming before it is advertised.</p>
     </div>
   </div>
 </section>
 
 <section class="sec-cream">
   <div class="wrap">
-    <span class="caps eyebrow">In preparation</span>
-    <h2>Where Providence is coming next</h2>
-    <p class="lede" style="margin-top:18px;max-width:52ch">Residences being prepared across central
-    London, and a first collection in Dubai.</p>
-    <div style="margin-top:clamp(36px,5vw,58px)">{coming}</div>
-    <div class="note" style="margin-top:clamp(34px,4vw,52px);max-width:62ch">
-      <span class="caps">Register your interest</span>
-      <p>If a location below suits you, tell us and we will let you know the moment that residence
-      opens &mdash; usually before it is advertised anywhere else.</p>
-      <a class="btn btn-ghost btn-sm" href="contact.html" style="margin-top:18px">Register interest</a>
+    <span class="caps eyebrow">Expansion</span>
+    <h2>Where Providence is going next</h2>
+    <p class="lede" style="margin-top:18px;max-width:54ch">We are actively expanding the Providence
+    Collection across London, with Dubai to follow.</p>
+    {secured}
+    <div style="margin-top:clamp(36px,5vw,58px)">
+      <div class="comingtop"><h3>On our radar</h3>
+        <span class="caps">Neighbourhoods we intend to operate in</span></div>
+      {london}
+      <p class="radarnote">These are the areas Providence is looking at, not properties we hold.
+      When a residence is secured it appears in the collection above.</p>
     </div>
+  </div>
+</section>
+
+<section class="sec-dark">
+  <div class="wrap narrow" style="text-align:center">
+    <span class="caps eyebrow" style="display:inline-block">Providence Dubai</span>
+    <h2 style="font-size:clamp(30px,4.4vw,54px)">The next chapter.</h2>
+    <p class="lede" style="margin-top:22px">A first Dubai collection is planned. We are looking at a
+    small number of neighbourhoods, chosen the same way as London.</p>
+    <p class="dubaiareas">{dubai}</p>
+    <a class="btn btn-light" href="contact.html" style="margin-top:34px">Register your interest</a>
+  </div>
+</section>
+
+<section class="sec-cream">
+  <div class="wrap narrow">
+    <span class="caps eyebrow">The private list</span>
+    <h2>Be first to stay</h2>
+    <p class="lede" style="margin-top:20px">Join the Providence private list for early access to new
+    residences, before they are released publicly.</p>
+    <form class="bookcard" id="listForm" style="margin-top:32px">
+      <div class="two">
+        <div class="field"><label for="pl_name">Name</label><input id="pl_name" name="name"></div>
+        <div class="field"><label for="pl_email">Email</label><input id="pl_email" name="email" type="email"></div>
+      </div>
+      <div class="field"><label for="pl_where">Preferred location</label>
+        <select id="pl_where" name="where">{wherepick}</select></div>
+      <div class="two">
+        <div class="field"><label for="pl_from">Approximate dates &mdash; from</label><input id="pl_from" name="from" type="date"></div>
+        <div class="field"><label for="pl_to">To</label><input id="pl_to" name="to" type="date"></div>
+      </div>
+      <div class="field"><label for="pl_kind">Type of stay</label>
+        <select id="pl_kind" name="kind">
+          <option>Short stay</option><option>Extended stay</option><option>Corporate</option>
+        </select></div>
+      <button class="btn btn-full" type="submit" style="margin-top:22px">Join the private list</button>
+    </form>
+  </div>
+</section>
+
+<section>
+  <div class="wrap split">
+    <div>
+      <span class="caps eyebrow">For business</span>
+      <h2>Looking for a longer stay?</h2>
+      <div class="body-copy">
+        <p>For relocations, project teams and extended business stays, Providence offers flexible
+        accommodation across London &mdash; invoiced to the company, with monthly rates and one point
+        of contact throughout.</p>
+      </div>
+      <a class="btn btn-ghost" href="corporate-stays.html" style="margin-top:30px">Corporate &amp; extended stays</a>
+    </div>
+    {shot_corp}
   </div>
 </section>
 """
@@ -758,6 +827,7 @@ def build_corporate():
 
 
 def build_about():
+    standard = providence_standard()
     body = f"""
 <section class="hero hero-sm" style="padding:0">
   <div class="bg">{shot("", "img/c02.jpg", "A Providence residence")}</div>
@@ -789,16 +859,7 @@ def build_about():
   <div class="wrap">
     <span class="caps eyebrow">Our standards</span>
     <h2 style="margin-bottom:clamp(38px,5vw,64px)">The Providence Standard</h2>
-    <div class="standard">
-      <div class="item"><h3>Thoughtfully Selected</h3>
-        <p>Residences chosen for their location, comfort and quality.</p></div>
-      <div class="item"><h3>Beautifully Presented</h3>
-        <p>Considered interiors designed to make every stay feel special.</p></div>
-      <div class="item"><h3>Effortless Stays</h3>
-        <p>Simple check-in, clear communication and responsive guest support.</p></div>
-      <div class="item"><h3>Prime Locations</h3>
-        <p>Well-connected residences positioned for business and leisure.</p></div>
-    </div>
+    {standard}
   </div>
 </section>
 """
@@ -930,7 +991,7 @@ def build_contact():
       <table class="facts" style="margin-top:22px">
         <tr><th>Telephone</th><td><a href="tel:{PHONE_LINK}">{esc(CONTACT_PHONE)}</a></td></tr>
         <tr><th>Address</th><td>{esc(REG_OFFICE)}</td></tr>
-        <tr><th>Where we operate</th><td>London &middot; Dubai from 2027</td></tr>
+        <tr><th>Where we operate</th><td>London</td></tr>
         <tr><th>Company</th><td>{esc(LEGAL)}</td></tr>
       </table>
       <div class="note">

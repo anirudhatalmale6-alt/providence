@@ -202,8 +202,8 @@ with sync_playwright() as p:
 
     # --- the four Providence Standard points ---
     std = pg.eval_on_selector_all(".standard .item h3", "e=>e.map(x=>x.textContent.trim())")
-    ok("the four standards are present",
-       std == ["Thoughtfully Selected", "Beautifully Presented", "Effortless Stays", "Prime Locations"], std)
+    ok("the six Providence standards are present",
+       std == ["Location", "Light & Space", "Sleep", "Work", "Living", "Service"], std)
 
     # --- the colour budget, measured rather than claimed -------------------
     # Sample the page away from photographs and count which brand group each
@@ -313,34 +313,85 @@ with sync_playwright() as p:
     nav_labels = pg.eval_on_selector_all(".site-head nav a", "e=>e.map(x=>x.textContent.trim())")
     ok("the nav says Collection", "Collection" in nav_labels, nav_labels)
 
-    # --- locations in preparation, UK and Dubai ----------------------------
-    locs = pg.eval_on_selector_all(".locs .nm", "e=>e.map(x=>x.textContent.trim())")
-    for want in ("Canary Wharf", "Victoria", "Pimlico", "Mayfair", "Notting Hill",
-                 "Shoreditch", "Kennington", "King's Cross"):
-        ok("London list includes %s" % want, want in locs, locs[:6])
-    for want in ("Dubai Marina", "Downtown Dubai", "Palm Jumeirah"):
-        ok("Dubai list includes %s" % want, want in locs)
-    ok("there are at least 36 London locations", len(locs) >= 40, len(locs))
-    badges = pg.eval_on_selector_all(".locs .badge", "e=>e.map(x=>x.textContent.trim().toLowerCase())")
-    ok("every location carries a coming soon badge",
-       len(badges) == len(locs) and all(b == "coming soon" for b in badges),
-       (len(badges), len(locs), list(set(badges))))
-    caps = pg.eval_on_selector_all(".locs .cap", "e=>e.map(x=>x.textContent.trim())")
-    ok("every location has a caption", len(caps) == len(locs) and all(len(c) > 20 for c in caps),
-       (len(caps), len(locs)))
-    # they are places, not invented apartments
-    ok("coming-soon entries do not invent bedroom counts or rates",
-       not re.search(r"\b\d+\s*(bed|bedroom)\b", " ".join(caps), re.I) and
-       "£" not in " ".join(caps), caps[:3])
-    ok("the home page teases the locations too",
-       pg.eval_on_selector_all(".locs-tease .loc", "e=>e.length") >= 0)
+    # --- expansion: an intention must never read as an inventory -----------
+    # Her strongest point, and she is right: "36 locations being prepared"
+    # states that thirty-six properties are secured. They are not. A guest or
+    # a landlord who discovers that later has been misled by us.
+    page_text = pg.inner_text("main")
+    for claim in ("being prepared", "36 locations", "44 locations", "8 locations"):
+        ok("the page never claims %r" % claim, claim not in page_text.lower(), page_text[:200])
+    ok("the expansion is framed as intent",
+       "where providence is going next" in page_text.lower())
+    ok("and says so in her words",
+       "actively expanding the providence collection across london" in page_text.lower())
+    low = page_text.lower()
+    ok("intended areas are labelled as a radar, not as stock",
+       "on our radar" in low and "neighbourhoods we intend to operate in" in low, page_text[:200])
+    ok("and it says explicitly they are not held",
+       "not properties we hold" in page_text.lower(), page_text[:200])
+    ok("nothing is badged Coming Soon while nothing is secured",
+       "coming soon" not in page_text.lower())
 
-    pg.goto("%s/index.html" % BASE, wait_until="load"); pg.wait_for_timeout(500)
-    ok("home shows a coming-soon taste", pg.eval_on_selector_all(".locs-tease .loc", "e=>e.length") >= 8)
-    ok("home keeps her wording — exceptional stays",
-       "Exceptional stays, thoughtfully designed" in pg.inner_text("main"))
-    ok("home keeps her wording — a refined way to stay",
-       "A refined way to stay in London" in pg.inner_text("main"))
+    # grouped, not a list of 36
+    groups = pg.eval_on_selector_all(".areagroup h4", "e=>e.map(x=>x.textContent.trim())")
+    ok("London is grouped by area", len(groups) == 5, groups)
+    for want in ("CENTRAL LONDON", "WEST LONDON", "CITY & EAST", "SOUTH & RIVERSIDE"):
+        ok("group %r present" % want, want in [g.upper() for g in groups], groups)
+    names = pg.inner_text(".areas")
+    for want in ("Mayfair", "Notting Hill", "Shoreditch", "Vauxhall", "King's Cross", "Canary Wharf"):
+        ok("area list still contains %s" % want, want in names)
+    ok("the areas are not 36 separate rows",
+       pg.eval_on_selector_all(".areas li", "e=>e.length") == 0)
+
+    # Dubai gets its own chapter, and no invented date
+    dub = pg.inner_text(".sec-dark")
+    ok("Dubai is a separate chapter", "the next chapter" in dub.lower(), dub[:160])
+    ok("with a short list of neighbourhoods",
+       all(n in dub for n in ("Dubai Marina", "Downtown Dubai", "Palm Jumeirah", "Business Bay")))
+    ok("Dubai does not carry an invented launch date",
+       not re.search(r"\b20\d\d\b", dub), dub[:200])
+
+    # --- the inaugural framing ---------------------------------------------
+    ok("the first residence is framed as inaugural, not as 01",
+       "the first providence residence" in low, page_text[:200])
+    ok("and 'Residence 01' is gone", "residence 01" not in low)
+    ok("the collection is described as expanding, not merely growing",
+       "the collection is expanding" in low)
+
+    # --- the card carries a little more selling power ----------------------
+    meta = pg.inner_text(".residence .meta").lower()
+    for want in ("1 bedroom", "sleeps 2", "thames riverside", "fast wi-fi", "fully equipped"):
+        ok("card attribute %r" % want, want in meta, meta)
+    ok("database wording is gone", "river location" not in pg.inner_text("body").lower())
+    ok("the card is not overloaded",
+       len(pg.eval_on_selector_all(".residence .meta span", "e=>e.length")) if False else
+       pg.eval_on_selector_all(".residence .meta span", "e=>e.length") <= 5,
+       pg.eval_on_selector_all(".residence .meta span", "e=>e.length"))
+
+    # --- the private list ---------------------------------------------------
+    ok("the private list is offered", "be first to stay" in page_text.lower())
+    ok("with her wording",
+       "early access to new residences, before they are released publicly" in page_text)
+    for fid in ("#pl_name", "#pl_email", "#pl_where", "#pl_from", "#pl_to", "#pl_kind"):
+        ok("private list has %s" % fid, pg.locator(fid).count() == 1)
+    kinds = pg.eval_on_selector_all("#pl_kind option", "e=>e.map(x=>x.textContent.trim())")
+    ok("stay types offered", kinds == ["Short stay", "Extended stay", "Corporate"], kinds)
+    wheres = pg.eval_on_selector_all("#pl_where option", "e=>e.length")
+    ok("preferred location lists every area", wheres >= 40, wheres)
+
+    # --- corporate is quietly present --------------------------------------
+    ok("a corporate path exists on the collection page",
+       "looking for a longer stay?" in page_text.lower())
+    ok("and links to the corporate page",
+       pg.eval_on_selector_all("a[href='corporate-stays.html']", "e=>e.length") >= 1)
+
+    # --- The Providence Standard, six principles ---------------------------
+    for path in ("index.html", "about.html"):
+        pg.goto("%s/%s" % (BASE, path), wait_until="load"); pg.wait_for_timeout(400)
+        items = pg.eval_on_selector_all(".standard .item h3", "e=>e.map(x=>x.textContent.trim())")
+        ok("%s carries the six Providence standards" % path,
+           items == ["Location", "Light & Space", "Sleep", "Work", "Living", "Service"], items)
+    pg.goto("%s/residences.html" % BASE, wait_until="load"); pg.wait_for_timeout(400)
 
     # --- concierge ----------------------------------------------------------
     for path in ("index.html", "residences/vauxhall-residence.html"):
