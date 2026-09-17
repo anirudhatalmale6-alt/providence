@@ -1,4 +1,3 @@
+__pycache__/
+*.pyc
 shots/
-shots_contact*.png
-shots_pick.png
-fetch*.py

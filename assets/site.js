@@ -195,3 +195,35 @@
     if (e.key === 'Escape' && !panel.hidden) toggle(false);
   });
 })();
+
+/* ---------------------------------------------------------------------------
+   Motion. Slow, one-way, and off entirely for prefers-reduced-motion.
+
+   IntersectionObserver rather than a scroll handler: the browser does the
+   work off the main thread, which matters because her point 17 asks that
+   none of this cost mobile performance.
+   --------------------------------------------------------------------------- */
+(function () {
+  'use strict';
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var els = document.querySelectorAll('.reveal, .zoom');
+
+  if (reduce || !('IntersectionObserver' in window)) {
+    /* Show everything immediately. A page that needs JavaScript to become
+       readable is broken, not animated. */
+    Array.prototype.forEach.call(els, function (el) { el.classList.add('in'); });
+    return;
+  }
+
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        io.unobserve(e.target);      /* one-way; never animates back out */
+      }
+    });
+  }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
+
+  Array.prototype.forEach.call(els, function (el) { io.observe(el); });
+
+})();

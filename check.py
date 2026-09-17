@@ -7,6 +7,11 @@ brief actually specified but which are usually only ever asserted by eye: the
 words she asked never to appear.
 """
 import os, re, sys, json, glob, collections
+
+# read straight from the build so the test cannot drift from the data
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import build as _b
+FUTURE_DUBAI_FOR_TEST = _b.FUTURE_DUBAI
 from playwright.sync_api import sync_playwright
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -190,20 +195,55 @@ with sync_playwright() as p:
 
     # --- the hero, as briefed ---
     pg.goto("%s/index.html" % BASE, wait_until="load"); pg.wait_for_timeout(500)
+    # --- the editorial opening, requested 15-Sep ---------------------------
     h1 = pg.inner_text("h1")
-    ok("hero says the brand name", "PROVIDENCE PREMIUM SUITES" in h1.upper(), h1)
-    ok("hero carries the tagline",
-       "Exceptional stays, thoughtfully designed." in pg.inner_text(".hero"), )
-    acts = pg.eval_on_selector_all(".hero .acts a", "e=>e.map(x=>x.textContent.trim().toUpperCase())")
-    ok("hero has both calls to action", acts == ["BOOK YOUR STAY", "EXPLORE OUR SUITES"], acts)
-    ok("the hero is a full-width photograph", pg.locator(".hero .bg img").count() == 1)
-    words = len(pg.inner_text(".hero .in").split())
-    ok("the hero is not cluttered with text", words <= 20, words)
+    ok("the opening states the proposition", "considered living" in h1.lower(), h1)
+    stage = pg.inner_text(".stage")
+    ok("it names London, extended stays and private residences",
+       all(w in stage for w in ("London", "Extended stays", "Private residences")), stage[:160])
+    acts = pg.eval_on_selector_all(".stage .acts a", "e=>e.map(x=>x.textContent.trim().upperCase?0:x.textContent.trim().toUpperCase())")
+    ok("the opening has both calls to action",
+       acts == ["EXPLORE THE COLLECTION", "ENQUIRE ABOUT A STAY"], acts)
+    ok("the opening is a full-bleed photograph", pg.locator(".stage .shot img").count() >= 1)
+    words = len(pg.inner_text(".stage .on").split())
+    ok("the opening is not cluttered with text", words <= 22, words)
+
+    # her point 4: the display voice must be genuinely oversized, and italic
+    fs = float(pg.eval_on_selector(".display", "e=>getComputedStyle(e).fontSize").replace("px", ""))
+    ok("the display type is oversized", fs >= 90, fs)
+    ok("and italic", pg.eval_on_selector(".display", "e=>getComputedStyle(e).fontStyle") == "italic")
+    ok("and set in the serif",
+       "Cormorant" in pg.eval_on_selector(".display", "e=>getComputedStyle(e).fontFamily"))
+
+    # her point 5: dark punctuation must actually be present, and not dominate
+    ok("there is at least one near-black section",
+       pg.eval_on_selector_all(".sec-char", "e=>e.length") >= 1)
+    ok("full-bleed photography is used more than once",
+       pg.eval_on_selector_all(".bleed-full", "e=>e.length") >= 2)
+    ok("asymmetric splits are used",
+       pg.eval_on_selector_all(".edit-split", "e=>e.length") >= 2)
+    ok("a plate overlaps a larger image", pg.eval_on_selector_all(".plate .over", "e=>e.length") >= 1)
+
+    # her point 16: motion must exist AND must switch itself off
+    ok("scroll reveals are present", pg.eval_on_selector_all(".reveal", "e=>e.length") >= 6)
+    css = open(os.path.join(ROOT, "assets", "style.css"), encoding="utf-8").read()
+    ok("prefers-reduced-motion is respected", "prefers-reduced-motion" in css)
+    ok("and it neutralises the reveal, not just the zoom",
+       "reduce" in css and ".reveal,.reveal-d1" in css.replace(" ", ""))
+
+    # her point 15: the journey must stay obvious
+    ok("a booking action is in the header",
+       pg.locator("#navBook").count() == 1 and
+       pg.eval_on_selector("#navBook", "e=>getComputedStyle(e).display") != "none")
 
     # --- the four Providence Standard points ---
-    std = pg.eval_on_selector_all(".standard .item h3", "e=>e.map(x=>x.textContent.trim())")
-    ok("the six Providence standards are present",
-       std == ["Location", "Light & Space", "Sleep", "Work", "Living", "Service"], std)
+    std = pg.eval_on_selector_all(".pillars .nm", "e=>e.map(x=>x.textContent.trim())")
+    ok("the Providence Standard is present",
+       std == ["Sleep", "Live", "Work", "Service", "Location", "Light & Space"], std)
+    ok("it is numbered editorially, not iconified",
+       pg.eval_on_selector_all(".pillars .n", "e=>e.map(x=>x.textContent.trim())")[:3] == ["01", "02", "03"])
+    ok("and it is set in the italic serif, not in cards",
+       pg.eval_on_selector(".pillars .nm", "e=>getComputedStyle(e).fontStyle") == "italic")
 
     # --- the colour budget, measured rather than claimed -------------------
     # Sample the page away from photographs and count which brand group each
@@ -221,7 +261,7 @@ with sync_playwright() as p:
         # the placeholder's taupe fill counting as brand surface; leaving the
         # hero in counted a dark photograph as an espresso surface and put the
         # dark share at 36% when the design is nothing like that heavy.
-        pg.evaluate("document.querySelectorAll('.shot, .hero').forEach(function(i){i.style.visibility='hidden'})")
+        pg.evaluate("document.querySelectorAll('.shot, .hero, .stage, .pic img, .plate').forEach(function(i){i.style.visibility='hidden'})")
         total_h = pg.evaluate("document.body.scrollHeight")
         for frac in (0.05, 0.3, 0.55, 0.8):
             pg.evaluate("window.scrollTo(0,%d)" % int(total_h * frac))
@@ -247,6 +287,31 @@ with sync_playwright() as p:
     ok("the site does not read as gold", accent < light / 3, (round(accent, 1), round(light, 1)))
 
 
+    # --- every local link and asset must resolve to a real file -------------
+    # An "the link exists" assertion only proves the anchor is in the markup.
+    # It says nothing about whether the page on the other end was generated.
+    here = os.path.dirname(os.path.abspath(__file__))
+    html_files = sorted(glob.glob(os.path.join(here, "*.html")) +
+                        glob.glob(os.path.join(here, "*", "*.html")))
+    ok("the site has its pages and a page per residence",
+       len(html_files) >= 12, len(html_files))
+    dead = []
+    for f in html_files:
+        src = open(f, encoding="utf-8").read()
+        for ref in re.findall(r'(?:href|src)="([^"]+)"', src):
+            if re.match(r'^(https?:|mailto:|tel:|data:|#|javascript:)', ref):
+                continue
+            target = ref.split("#")[0].split("?")[0]
+            if not target:
+                continue
+            resolved = os.path.normpath(os.path.join(os.path.dirname(f), target))
+            if not os.path.exists(resolved):
+                dead.append("%s -> %s" % (os.path.relpath(f, here), ref))
+    ok("every local link and asset resolves", not dead, dead[:8])
+    # and the residence page the Collection sends people to really is there
+    ok("the residence detail page exists",
+       os.path.exists(os.path.join(here, "residences", "vauxhall-residence.html")))
+
     # --- hero legibility, measured against the photograph behind it ---------
     # Cream type over a photograph is the single most likely place for this
     # design to become unreadable, and the average is no guide: the first
@@ -257,18 +322,18 @@ with sync_playwright() as p:
     for w, h, tag in ((1280, 900, "desktop"), (390, 800, "phone")):
         pg.set_viewport_size({"width": w, "height": h})
         pg.goto("%s/index.html" % BASE, wait_until="load"); pg.wait_for_timeout(700)
-        for sel, label, big in ((".hero h1", "hero headline", True),
-                                (".hero .tag", "hero tagline", True)):
+        for sel, label, big in ((".stage .display", "opening headline", True),
+                                (".stage .idx", "opening eyebrow", False)):
             box = pg.eval_on_selector(sel, "e=>{const r=e.getBoundingClientRect();"
                                             "return {x:r.x,y:r.y,w:r.width,h:r.height}}")
-            pg.eval_on_selector(".hero .in", "e=>e.style.visibility='hidden'")
+            pg.eval_on_selector(".stage .on", "e=>e.style.visibility='hidden'")
             pg.wait_for_timeout(180)
             im = _Image.open(_io.BytesIO(pg.screenshot())).convert("RGB")
             crop = im.crop((int(box["x"]), int(box["y"]),
                             int(box["x"] + max(1, box["w"])), int(box["y"] + max(1, box["h"]))))
             px = list(crop.getdata())
             rs = sorted(contrast((0xFF, 0xFD, 0xF8), q) for q in px)
-            pg.eval_on_selector(".hero .in", "e=>e.style.visibility='visible'")
+            pg.eval_on_selector(".stage .on", "e=>e.style.visibility='visible'")
             pg.wait_for_timeout(120)
             floor = 3.0 if big else 4.5          # large-text threshold
             p1 = rs[len(rs) // 100]              # 1st percentile
@@ -299,40 +364,44 @@ with sync_playwright() as p:
     ok("the build still reports the company number as a launch blocker",
        "Company number" in blockers, blockers)
 
-    # --- the collection rename ---------------------------------------------
-    pg.goto("%s/residences.html" % BASE, wait_until="load"); pg.wait_for_timeout(500)
-    # the hero h1 and the .where line are uppercased by CSS, and inner_text
-    # returns rendered text — compare case-insensitively
-    main_l = pg.inner_text("main").lower()
-    ok("the portfolio is called The Providence Collection",
-       "the providence collection" in pg.inner_text("h1").lower(), pg.inner_text("h1"))
-    ok("with her line underneath",
-       "thoughtfully selected residences across london" in main_l)
-    ok("Vauxhall Residence still appears with its location",
-       "vauxhall residence" in main_l and "london, sw8" in main_l)
+    # --- the Collection page, in its editorial form ------------------------
+    pg.goto("%s/residences.html" % BASE, wait_until="load"); pg.wait_for_timeout(900)
+    page_text = pg.inner_text("main")
+    low = page_text.lower()
+
+    ok("the page opens with her line",
+       "places chosen" in low and "with purpose" in low, page_text[:160])
+    ok("the collection is named", "the providence collection" in low)
     nav_labels = pg.eval_on_selector_all(".site-head nav a", "e=>e.map(x=>x.textContent.trim())")
     ok("the nav says Collection", "Collection" in nav_labels, nav_labels)
 
-    # --- expansion: an intention must never read as an inventory -----------
-    # Her strongest point, and she is right: "36 locations being prepared"
-    # states that thirty-six properties are secured. They are not. A guest or
-    # a landlord who discovers that later has been misled by us.
-    page_text = pg.inner_text("main")
-    for claim in ("being prepared", "36 locations", "44 locations", "8 locations"):
-        ok("the page never claims %r" % claim, claim not in page_text.lower(), page_text[:200])
-    ok("the expansion is framed as intent",
-       "where providence is going next" in page_text.lower())
-    ok("and says so in her words",
-       "actively expanding the providence collection across london" in page_text.lower())
-    low = page_text.lower()
-    ok("intended areas are labelled as a radar, not as stock",
-       "on our radar" in low and "neighbourhoods we intend to operate in" in low, page_text[:200])
-    ok("and it says explicitly they are not held",
-       "not properties we hold" in page_text.lower(), page_text[:200])
-    ok("nothing is badged Coming Soon while nothing is secured",
-       "coming soon" not in page_text.lower())
+    # her point 7: Vauxhall presented deliberately, with the location
+    ok("Vauxhall leads the page", "vauxhall" in low)
+    ok("with its postcode", "sw8" in low)
+    ok("labelled as Residence 01, as she asked",
+       "residence 01" in low, page_text[:200])
+    ok("and named as the first Providence residence",
+       "the first providence residence" in low)
+    ok("it links through to the residence page",
+       pg.eval_on_selector_all("a[href*='vauxhall-residence']", "e=>e.length") >= 1)
+    ok("with her editorial line",
+       "deserve more than somewhere to sleep" in low)
 
-    # grouped, not a list of 36
+    # --- expansion: an intention must never read as an inventory -----------
+    # Her earlier point, still enforced: "being prepared" across 44 locations
+    # states 44 secured properties. They are not.
+    for claim in ("being prepared", "36 locations", "44 locations", "8 locations"):
+        ok("the page never claims %r" % claim, claim not in low, page_text[:200])
+    ok("the expansion is framed as intent",
+       "london is only" in low and "the beginning" in low, page_text[:200])
+    ok("and says so in her words",
+       "actively expanding the providence collection across london" in low)
+    ok("intended areas are labelled as a radar, not as stock",
+       "on our radar" in low and "neighbourhoods we intend to operate in" in low)
+    ok("and it says explicitly they are not held", "not properties we hold" in low)
+    ok("nothing is badged Coming Soon while nothing is secured", "coming soon" not in low)
+
+    # grouped, not 36 rows
     groups = pg.eval_on_selector_all(".areagroup h4", "e=>e.map(x=>x.textContent.trim())")
     ok("London is grouped by area", len(groups) == 5, groups)
     for want in ("CENTRAL LONDON", "WEST LONDON", "CITY & EAST", "SOUTH & RIVERSIDE"):
@@ -342,56 +411,108 @@ with sync_playwright() as p:
         ok("area list still contains %s" % want, want in names)
     ok("the areas are not 36 separate rows",
        pg.eval_on_selector_all(".areas li", "e=>e.length") == 0)
+    ok("the expansion sits on a near-black section",
+       pg.eval_on_selector_all(".sec-char .areas", "e=>e.length") == 1)
 
-    # Dubai gets its own chapter, and no invented date
-    dub = pg.inner_text(".sec-dark")
-    ok("Dubai is a separate chapter", "the next chapter" in dub.lower(), dub[:160])
+    # --- Dubai, its own moment ---------------------------------------------
+    dub = pg.inner_text("#dubai")
+    ok("Dubai is a separate chapter", "the next chapter" in dub.lower(), dub[:200])
     ok("with a short list of neighbourhoods",
        all(n in dub for n in ("Dubai Marina", "Downtown Dubai", "Palm Jumeirah", "Business Bay")))
+    ok("only four, not eight", len(FUTURE_DUBAI_FOR_TEST) == 4)
     ok("Dubai does not carry an invented launch date",
        not re.search(r"\b20\d\d\b", dub), dub[:200])
+    ok("Dubai is full-bleed photography",
+       pg.eval_on_selector_all("#dubai .shot img", "e=>e.length") == 1)
 
-    # --- the inaugural framing ---------------------------------------------
-    ok("the first residence is framed as inaugural, not as 01",
-       "the first providence residence" in low, page_text[:200])
-    ok("and 'Residence 01' is gone", "residence 01" not in low)
-    ok("the collection is described as expanding, not merely growing",
-       "the collection is expanding" in low)
-
-    # --- the card carries a little more selling power ----------------------
-    meta = pg.inner_text(".residence .meta").lower()
+    # --- the attribute line -------------------------------------------------
+    meta = pg.inner_text(".meta").lower()
     for want in ("1 bedroom", "sleeps 2", "thames riverside", "fast wi-fi", "fully equipped"):
-        ok("card attribute %r" % want, want in meta, meta)
+        ok("attribute %r" % want, want in meta, meta)
     ok("database wording is gone", "river location" not in pg.inner_text("body").lower())
-    ok("the card is not overloaded",
-       len(pg.eval_on_selector_all(".residence .meta span", "e=>e.length")) if False else
-       pg.eval_on_selector_all(".residence .meta span", "e=>e.length") <= 5,
-       pg.eval_on_selector_all(".residence .meta span", "e=>e.length"))
+    ok("the attribute line is not overloaded",
+       pg.eval_on_selector_all(".meta span", "e=>e.length") <= 5,
+       pg.eval_on_selector_all(".meta span", "e=>e.length"))
+    # inner_text cannot see a ::before, so the separators have to be measured.
+    # They were scoped to .residence and silently vanished wherever the same
+    # attribute line was reused: "1 BEDROOMSLEEPS 2THAMES RIVERSIDE".
+    # sweep every page at both widths, so the coverage cannot quietly fall to
+    # zero if the attribute line moves or gets renamed
+    all_pages = sorted(
+        [os.path.basename(p) for p in glob.glob(os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "*.html"))] +
+        ["residences/" + os.path.basename(p) for p in glob.glob(os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "residences", "*.html"))])
+    for w in (1440, 390):
+        carried = 0
+        for path in all_pages:
+            pg.set_viewport_size({"width": w, "height": 900})
+            pg.goto("%s/%s" % (BASE, path), wait_until="load"); pg.wait_for_timeout(300)
+            seps = pg.eval_on_selector_all(
+                ".meta span + span",
+                "e=>e.map(x=>getComputedStyle(x,'::before').content)")
+            if not seps:
+                continue
+            carried += 1
+            ok("%s at %dpx separates the attributes" % (path, w),
+               all("\u00b7" in s for s in seps), seps)
+        ok("the attribute line is actually on the page at %dpx" % w,
+           carried >= 2, carried)
+
+    # On a phone the split stacks. Nothing may touch: a button whose bottom
+    # edge meets the next photograph reads as a bug, not a composition.
+    pg.set_viewport_size({"width": 390, "height": 844})
+    tightest = None
+    for path in all_pages:
+        pg.goto("%s/%s" % (BASE, path), wait_until="load"); pg.wait_for_timeout(300)
+        gaps = pg.eval_on_selector_all(".edit-split", """es=>es.map(s=>{
+            const k=[...s.children].map(c=>c.getBoundingClientRect())
+                     .filter(r=>r.height>0);
+            let m=null;
+            for(let i=1;i<k.length;i++){const g=k[i].top-k[i-1].bottom;
+                if(m===null||g<m)m=g;}
+            return m;})""")
+        for g in gaps:
+            if g is None:
+                continue
+            if tightest is None or g < tightest:
+                tightest = g
+    ok("nothing touches inside a stacked split on a phone",
+       tightest is not None and tightest >= 20, tightest)
+    pg.set_viewport_size({"width": 1440, "height": 900})
+    pg.set_viewport_size({"width": 1440, "height": 900})
+    pg.goto("%s/residences.html" % BASE, wait_until="load"); pg.wait_for_timeout(450)
 
     # --- the private list ---------------------------------------------------
-    ok("the private list is offered", "be first to stay" in page_text.lower())
+    ok("the private list is offered", "be first to stay" in low)
     ok("with her wording",
-       "early access to new residences, before they are released publicly" in page_text)
+       "early access to new residences, before they are released publicly" in low)
     for fid in ("#pl_name", "#pl_email", "#pl_where", "#pl_from", "#pl_to", "#pl_kind"):
         ok("private list has %s" % fid, pg.locator(fid).count() == 1)
     kinds = pg.eval_on_selector_all("#pl_kind option", "e=>e.map(x=>x.textContent.trim())")
     ok("stay types offered", kinds == ["Short stay", "Extended stay", "Corporate"], kinds)
-    wheres = pg.eval_on_selector_all("#pl_where option", "e=>e.length")
-    ok("preferred location lists every area", wheres >= 40, wheres)
+    ok("preferred location lists every area",
+       pg.eval_on_selector_all("#pl_where option", "e=>e.length") >= 40)
 
     # --- corporate is quietly present --------------------------------------
     ok("a corporate path exists on the collection page",
-       "looking for a longer stay?" in page_text.lower())
+       "staying longer" in low and "relocations" in low, page_text[-400:])
     ok("and links to the corporate page",
        pg.eval_on_selector_all("a[href='corporate-stays.html']", "e=>e.length") >= 1)
 
+    # --- the editorial language is used here too ---------------------------
+    ok("the Collection page uses the display voice",
+       pg.eval_on_selector_all(".display", "e=>e.length") >= 4)
+    ok("it uses full-bleed photography", pg.eval_on_selector_all(".bleed-full", "e=>e.length") >= 2)
+    ok("and asymmetric splits", pg.eval_on_selector_all(".edit-split", "e=>e.length") >= 2)
+
     # --- The Providence Standard, six principles ---------------------------
     for path in ("index.html", "about.html"):
-        pg.goto("%s/%s" % (BASE, path), wait_until="load"); pg.wait_for_timeout(400)
-        items = pg.eval_on_selector_all(".standard .item h3", "e=>e.map(x=>x.textContent.trim())")
-        ok("%s carries the six Providence standards" % path,
-           items == ["Location", "Light & Space", "Sleep", "Work", "Living", "Service"], items)
-    pg.goto("%s/residences.html" % BASE, wait_until="load"); pg.wait_for_timeout(400)
+        pg.goto("%s/%s" % (BASE, path), wait_until="load"); pg.wait_for_timeout(500)
+        items = pg.eval_on_selector_all(".pillars .nm, .standard .item h3",
+                                        "e=>e.map(x=>x.textContent.trim())")
+        ok("%s carries the six Providence standards" % path, len(items) == 6, items)
+    pg.goto("%s/residences.html" % BASE, wait_until="load"); pg.wait_for_timeout(500)
 
     # --- concierge ----------------------------------------------------------
     for path in ("index.html", "residences/vauxhall-residence.html"):

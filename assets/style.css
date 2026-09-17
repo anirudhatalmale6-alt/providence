@@ -210,9 +210,12 @@ section{padding-block:clamp(64px,9vw,132px)}
   .residence{grid-template-columns:1fr;gap:26px}
   .residence.flip > .shot{order:0}
 }
-.residence .meta{font-size:12px;letter-spacing:.2em;text-transform:uppercase;
+/* the attribute line, wherever it is used — not only inside .residence,
+   or the separators vanish when the same markup is reused editorially */
+.meta{font-size:12px;letter-spacing:.2em;text-transform:uppercase;
   color:var(--ink-3);margin-top:18px}
-.residence .meta span + span::before{content:"·";margin:0 10px;color:var(--champagne)}
+.meta span + span::before{content:"·";margin:0 10px;color:var(--champagne)}
+.sec-char .meta span + span::before{color:var(--champagne)}
 .residence h3{margin-top:14px;font-size:clamp(26px,3vw,38px)}
 .residence .where{font-size:13px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--champagne);margin-top:10px}
@@ -382,3 +385,163 @@ section{padding-block:clamp(64px,9vw,132px)}
 .standard-6{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media(max-width:900px){.standard-6{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.standard-6{grid-template-columns:1fr}}
+
+/* ===========================================================================
+   EDITORIAL LAYER  —  requested 15-Sep
+   ---------------------------------------------------------------------------
+   Her note: the site was "too restrained and slightly flat". The fix she
+   asked for is scale, not decoration — big photography, oversized italic
+   serif, asymmetry, overlap, and occasional near-black sections so the ivory
+   reads as luxury rather than as monotony.
+
+   Rules I am holding myself to, from her point 19:
+     · nothing decorative is added — every new class is scale, crop or space
+     · overlap only where it earns the composition, and never on a phone
+     · the dark sections punctuate; they never become the page
+     · motion is slow and switches itself off for prefers-reduced-motion
+   =========================================================================== */
+
+:root{
+  --char:#17130F;              /* near-black, for the dramatic punctuation */
+  --edge:clamp(16px,4.2vw,72px);
+}
+
+/* ---------- full-bleed ------------------------------------------------------
+   Escapes .wrap without a wrapper of its own. 100vw would include the
+   scrollbar and cause sideways scroll, so the width is taken from the
+   document element instead. */
+.bleed{
+  width:100%;
+  margin-inline:0;
+}
+.bleed-full{
+  position:relative;
+  width:100vw;
+  max-width:100%;
+  margin-left:50%;
+  transform:translateX(-50%);
+}
+
+/* ---------- the display voice ---------------------------------------------
+   One class. Italic Cormorant at a size the old design never went near. */
+.display{
+  font-family:var(--serif);
+  font-style:italic;
+  font-weight:300;
+  font-size:clamp(42px,8.4vw,124px);
+  line-height:.94;
+  letter-spacing:-.012em;
+  margin:0;
+}
+.display-sm{font-size:clamp(34px,5.6vw,78px)}
+.display .up{font-style:normal;text-transform:uppercase;letter-spacing:.06em;
+  font-size:.42em;display:block;margin-bottom:.34em;color:var(--champagne)}
+.on-char .display,.on-char h2,.on-char h3{color:var(--cream)}
+
+/* a small letter-spaced index number, the editorial counterpoint to the serif */
+.idx{font-family:var(--sans);font-weight:400;font-size:11px;letter-spacing:.3em;
+  color:var(--champagne)}
+
+/* ---------- the stage: photography at full height -------------------------- */
+.stage{position:relative;overflow:hidden;background:var(--char)}
+.stage-tall{min-height:min(92vh,900px)}
+.stage-mid{min-height:min(74vh,720px)}
+.stage .shot,.stage .shot img{position:absolute;inset:0;width:100%;height:100%}
+.stage .shot img{object-fit:cover}
+.stage .veil{position:absolute;inset:0;
+  background:linear-gradient(to top,#17130FD9 0%,#17130F8A 40%,#17130F33 100%)}
+.stage .on{position:relative;z-index:2;color:var(--cream);padding-block:clamp(40px,8vh,96px)}
+.stage-caption{position:absolute;right:var(--edge);bottom:clamp(18px,3vh,34px);z-index:2;
+  font-family:var(--sans);font-size:10px;letter-spacing:.24em;text-transform:uppercase;
+  color:#FFFDF88C;text-align:right}
+
+/* ---------- asymmetric split, with the panel overlapping the image --------- */
+.edit-split{display:grid;grid-template-columns:minmax(0,1.62fr) minmax(0,1fr);align-items:center}
+.edit-split.rev{grid-template-columns:minmax(0,1fr) minmax(0,1.62fr)}
+.edit-split .pic{position:relative;aspect-ratio:4/5;overflow:hidden;background:var(--taupe)}
+.edit-split .pic img{width:100%;height:100%;object-fit:cover}
+.edit-split .pic.wide{aspect-ratio:5/4}
+.edit-split .panel{background:var(--ivory);padding:clamp(26px,3.4vw,54px);
+  margin-left:clamp(-120px,-7vw,-40px);position:relative;z-index:2}
+.edit-split.rev .panel{margin-left:0;margin-right:clamp(-120px,-7vw,-40px)}
+.edit-split .panel.cream{background:var(--cream)}
+@media(max-width:900px){
+  /* Her point 17: reinterpret, do not shrink. On a phone the overlap is
+     removed entirely — a panel pulled over a photograph at 390px is a
+     legibility problem, not a composition. */
+  /* the gap has to come from the grid, not from the panel's padding-top:
+     when the panel is the FIRST row the padding sits above it and the
+     photograph underneath butts straight against the button. */
+  .edit-split,.edit-split.rev{grid-template-columns:1fr;row-gap:clamp(26px,7vw,38px)}
+  .edit-split .pic{aspect-ratio:3/2}
+  .edit-split .panel,.edit-split.rev .panel{margin:0;padding:0}
+  .edit-split .panel.cream{background:transparent}
+}
+
+/* ---------- a framed plate floating over a larger image ------------------- */
+.plate{position:relative}
+.plate .under{aspect-ratio:16/9;overflow:hidden;background:var(--taupe)}
+.plate .under img{width:100%;height:100%;object-fit:cover}
+.plate .over{position:absolute;right:var(--edge);bottom:clamp(-40px,-4vw,-24px);
+  width:min(330px,42vw);aspect-ratio:3/4;overflow:hidden;
+  outline:clamp(6px,1vw,14px) solid var(--ivory)}
+.plate .over img{width:100%;height:100%;object-fit:cover}
+@media(max-width:760px){
+  .plate .over{position:static;width:100%;aspect-ratio:3/2;margin-top:10px;outline:0}
+}
+
+/* ---------- dark punctuation ---------------------------------------------- */
+.sec-char{background:var(--char);color:var(--cream)}
+.sec-char .lede{color:#FFFDF8C7}
+.sec-char .caps{color:#FFFDF88F}
+.sec-char p{color:#FFFDF8B5}
+.sec-char .hr-c{background:var(--champagne)}
+
+/* ---------- the Standard, set editorially rather than as five cards ------- */
+.pillars{border-top:1px solid var(--rule)}
+.pillars .row{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1.25fr);
+  gap:clamp(16px,3vw,48px);align-items:baseline;
+  padding:clamp(22px,2.6vw,38px) 0;border-bottom:1px solid var(--rule)}
+.pillars .n{font-family:var(--sans);font-size:11px;letter-spacing:.26em;color:var(--champagne);
+  padding-top:.7em;min-width:3.4em}
+.pillars .nm{font-family:var(--serif);font-style:italic;font-weight:300;
+  font-size:clamp(26px,3.6vw,48px);line-height:1}
+.pillars .ds{font-size:15.5px;color:var(--ink-2);line-height:1.75}
+.sec-char .pillars,.sec-char .pillars .row{border-color:#FFFDF824}
+.sec-char .pillars .ds{color:#FFFDF8AD}
+@media(max-width:760px){
+  .pillars .row{grid-template-columns:auto minmax(0,1fr);row-gap:10px}
+  .pillars .ds{grid-column:1 / -1}
+}
+
+/* ---------- area groups, restated for the editorial page ------------------ */
+.sec-char .areagroup h4{color:var(--champagne);border-bottom-color:#FFFDF824}
+.sec-char .areanames{color:#FFFDF8D1}
+.sec-char .radarnote{color:#FFFDF88F;border-left-color:var(--champagne)}
+
+/* ---------- motion --------------------------------------------------------
+   Slow, small, and one-way. Nothing loops, nothing bounces. */
+.reveal{opacity:0;transform:translateY(22px);
+  transition:opacity 1.05s cubic-bezier(.22,.61,.36,1),transform 1.05s cubic-bezier(.22,.61,.36,1)}
+.reveal.in{opacity:1;transform:none}
+.reveal-d1{transition-delay:.12s}
+.reveal-d2{transition-delay:.24s}
+.reveal-d3{transition-delay:.36s}
+.zoom img{transform:scale(1.035);transition:transform 1.6s cubic-bezier(.22,.61,.36,1)}
+.zoom.in img{transform:scale(1)}
+@media(prefers-reduced-motion:reduce){
+  /* Her point 16. Not a nicety: vestibular disorders make this a real harm. */
+  .reveal,.reveal-d1,.reveal-d2,.reveal-d3{opacity:1;transform:none;transition:none}
+  .zoom img,.zoom.in img{transform:none;transition:none}
+  html{scroll-behavior:auto}
+}
+
+/* ---------- the header stays solid ----------------------------------------
+   I tried a transparent header over the opening photograph. Measured, the nav
+   came out at 1.11:1 with 100% of its backdrop below threshold — because the
+   sticky header sits ABOVE the stage, not over it, so cream type landed on the
+   ivory page behind it. The solid ivory header is legible, and the brief asks
+   for a minimal interface, which it already is. Dropped rather than patched
+   with a scrim that would have hidden a wrong assumption.
+   The stage caption moves left so it cannot collide with the concierge pill. */
+.stage-caption{right:auto;left:var(--edge);text-align:left}

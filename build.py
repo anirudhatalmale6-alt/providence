@@ -147,13 +147,15 @@ FUTURE_DUBAI = ["Dubai Marina", "Downtown Dubai", "Palm Jumeirah", "Business Bay
 
 # The product promise, from her brief. Six principles, applied to every
 # residence — this is what makes it a standard rather than a description.
+# Her order, from the 01-05 list in the brief, with Light & Space kept from
+# the earlier round because it is the one that describes what a room feels like.
 STANDARD = [
-    ("Location",      "Well-connected, desirable neighbourhoods."),
-    ("Light & Space", "Homes that feel good to spend time in."),
-    ("Sleep",         "Excellent mattresses, pressed bedding and proper blackout."),
-    ("Work",          "Reliable high-speed Wi-Fi and a comfortable place to work."),
-    ("Living",        "Fully equipped kitchens and genuinely usable living space."),
+    ("Sleep",         "Exceptional beds, linen, blackout and quiet."),
+    ("Live",          "Proper kitchens and comfortable living spaces."),
+    ("Work",          "Reliable high-speed Wi-Fi and space to work properly."),
     ("Service",       "Responsive Providence support throughout the stay."),
+    ("Location",      "Residences selected in well-connected, desirable neighbourhoods."),
+    ("Light & Space", "Rooms that feel good to spend time in, not just to sleep in."),
 ]
 
 # One constant. She wants a stronger promise once the operation can keep it —
@@ -409,6 +411,20 @@ def future_london_section():
     return '<div class="areas">%s</div>' % groups
 
 
+def providence_standard_editorial():
+    """Her point 9: design this editorially, not as five generic icon cards.
+
+    A numbered row, a very large italic name, a thin rule. The number and the
+    serif do the work; there is nothing decorative in it.
+    """
+    rows = "".join(
+        '<div class="row reveal reveal-d%d"><div class="n">%02d</div>'
+        '<div class="nm">%s</div><div class="ds">%s</div></div>'
+        % (min(i, 3), i + 1, esc(k), esc(v))
+        for i, (k, v) in enumerate(STANDARD))
+    return '<div class="pillars">%s</div>' % rows
+
+
 def providence_standard(dark=False):
     items = "".join('<div class="item"><h3>%s</h3><p>%s</p></div>' % (esc(k), esc(v))
                     for k, v in STANDARD)
@@ -441,79 +457,129 @@ def _residence_cards(depth_prefix=""):
 
 
 def build_home():
-    cards = _residence_cards()
-    standard = providence_standard()
+    standard = providence_standard_editorial()
+    r = RESIDENCES[0]
     body = f"""
-<section class="hero" style="padding:0">
-  <div class="bg">{shot("", "img/c16.jpg", "A Providence residence in London")}</div>
-  <div class="scrim"></div>
-  <div class="wrap in">
-    <div class="rule"></div>
-    <h1>Providence Premium Suites</h1>
-    <p class="tag">Exceptional stays, thoughtfully designed.</p>
-    <div class="acts">
-      <a class="btn btn-light" href="book.html">Book your stay</a>
-      <a class="btn btn-outline-light" href="residences.html">Explore our suites</a>
-    </div>
-  </div>
-</section>
-
-<section class="sec-cream">
-  <div class="wrap narrow">
-    <span class="caps eyebrow">Providence</span>
-    <h2>A refined way to stay in London</h2>
-    <p class="lede" style="margin-top:28px">Providence Premium Suites offers thoughtfully selected
-    serviced accommodation designed for guests who value comfort, quality and effortless living.</p>
-    <div class="body-copy">
-      <p>From short city stays to extended corporate visits, our residences combine the privacy of
-      home with the standards expected from premium hospitality.</p>
-    </div>
-  </div>
-</section>
-
-<section>
-  <div class="wrap">
-    <span class="caps eyebrow">The collection</span>
-    <h2>The Providence Collection</h2>
-    <p class="lede" style="margin-top:18px;max-width:48ch">Thoughtfully selected residences across London.</p>
-    <div style="margin-top:clamp(38px,5vw,68px)">{cards}</div>
-  </div>
-</section>
-
-<section class="sec-dark">
-  <div class="wrap">
-    <span class="caps eyebrow">Our standards</span>
-    <h2>The Providence Standard</h2>
-    <p class="lede" style="margin-top:18px;max-width:56ch">Every Providence residence is chosen and
-    prepared around the same six things.</p>
-    <div style="margin-top:clamp(38px,5vw,64px)">{standard}</div>
-  </div>
-</section>
-
-<section class="sec-cream">
-  <div class="wrap narrow" style="text-align:center">
-    <span class="caps eyebrow" style="display:inline-block">Expansion</span>
-    <h2>Growing, carefully</h2>
-    <p class="lede" style="margin-top:20px">We are actively expanding the Providence Collection
-    across London, with Dubai to follow. A residence joins the collection only when the building,
-    the light and the location are right.</p>
-    <a class="btn btn-ghost" href="residences.html" style="margin-top:30px">Where we are going next</a>
-  </div>
-</section>
-
-<section>
-  <div class="wrap split">
-    <div>
-      <span class="caps eyebrow">For business</span>
-      <h2>Corporate &amp; Extended Stays</h2>
-      <div class="body-copy">
-        <p>Whether you are travelling for business, relocating, working on a London project or
-        requiring accommodation for an extended period, Providence Premium Suites provides
-        professionally managed residences with the flexibility and comfort of home.</p>
+<!-- ============ the opening: photography at full height ============ -->
+<section class="stage stage-tall bleed-full" data-opener style="padding:0;display:grid;align-items:end">
+  <div class="shot zoom in"><img src="img/d-tall.jpg" alt="A Providence residence in London"></div>
+  <div class="veil"></div>
+  <div class="wrap on">
+    <div class="reveal in">
+      <span class="idx">London &middot; Extended stays &middot; Private residences</span>
+      <h1 class="display" style="margin-top:.34em;color:var(--cream)">Residences for<br><em>considered living.</em></h1>
+      <div class="acts" style="display:flex;flex-wrap:wrap;gap:14px;margin-top:clamp(28px,4vh,48px)">
+        <a class="btn btn-light" href="residences.html">Explore the collection</a>
+        <a class="btn btn-outline-light" href="book.html">Enquire about a stay</a>
       </div>
-      <a class="btn btn-ghost" href="corporate-stays.html" style="margin-top:32px">Enquire about a corporate stay</a>
     </div>
-    {shot("ar-tall", None, "", "Providence", "Workspace detail — desk, light, coffee")}
+  </div>
+  <div class="stage-caption">Providence &middot; Vauxhall</div>
+</section>
+
+<!-- ============ editorial statement, asymmetric ============ -->
+<section>
+  <div class="wrap">
+    <div class="edit-split">
+      <div class="pic reveal zoom">{'<img src="img/d-window.jpg" alt="Morning light in a Providence residence">'}</div>
+      <div class="panel reveal reveal-d1">
+        <span class="caps">Providence</span>
+        <h2 class="display display-sm" style="margin-top:.4em">A refined way to stay in London.</h2>
+        <div class="body-copy">
+          <p>Providence offers thoughtfully selected serviced accommodation for guests who value
+          comfort, quality and effortless living &mdash; from short city stays to extended corporate
+          visits.</p>
+        </div>
+        <a class="btn btn-ghost btn-sm" href="about.html" style="margin-top:28px">About Providence</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ the first residence, given the whole page ============ -->
+<section class="sec-char" style="padding-bottom:clamp(80px,10vw,140px)">
+  <div class="wrap">
+    <span class="idx">Residence 01</span>
+    <h2 class="display" style="margin-top:.3em;color:var(--cream)"><em>Vauxhall</em></h2>
+    <p class="caps" style="margin-top:20px;color:#FFFDF8A8">London &middot; SW8</p>
+  </div>
+  <div class="wrap" style="margin-top:clamp(34px,5vw,60px)">
+    <div class="plate">
+      <div class="under reveal zoom"><img src="img/d-band.jpg" alt="{esc(r['name'])}"></div>
+      <div class="over reveal reveal-d2"><img src="img/d-linen.jpg" alt="Pressed linen"></div>
+    </div>
+  </div>
+  <div class="wrap" style="margin-top:clamp(64px,8vw,110px)">
+    <div class="edit-split rev" style="align-items:end">
+      <div class="panel reveal" style="background:transparent;padding:0;margin:0">
+        <p class="lede" style="font-style:italic">A considered London residence by the Thames,
+        created for stays that deserve more than somewhere to sleep.</p>
+        <div class="meta" style="margin-top:26px;font-size:12px;letter-spacing:.2em;
+             text-transform:uppercase;color:#FFFDF88F">
+          {"".join("<span>%s</span>" % esc(m) for m in r["meta"])}
+        </div>
+        <a class="btn btn-light btn-sm" href="residences/{r['slug']}.html" style="margin-top:32px">Discover Residence 01</a>
+      </div>
+      <div class="pic wide reveal reveal-d1 zoom"><img src="img/d-detail.jpg" alt="Interior detail"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ the Providence Standard, set as type ============ -->
+<section>
+  <div class="wrap">
+    <div class="reveal">
+      <span class="idx">The Providence Standard</span>
+      <h2 class="display display-sm" style="margin-top:.34em;max-width:22ch">
+        Everything you need.<br><em>Nothing you don&rsquo;t.</em></h2>
+    </div>
+    <div style="margin-top:clamp(40px,5vw,72px)">{standard}</div>
+  </div>
+</section>
+
+<!-- ============ a full-width breath ============ -->
+<section class="stage stage-mid bleed-full" style="padding:0;display:grid;align-items:end">
+  <div class="shot zoom reveal"><img src="img/d-band2.jpg" alt="A Providence interior"></div>
+  <div class="veil"></div>
+  <div class="wrap on">
+    <h2 class="display display-sm reveal" style="color:var(--cream);max-width:20ch">
+      <em>The art of staying well.</em></h2>
+  </div>
+</section>
+
+<!-- ============ expansion, then the corporate path ============ -->
+<section>
+  <div class="wrap">
+    <div class="edit-split">
+      <div class="pic reveal zoom"><img src="img/c02.jpg" alt="A Providence residence"></div>
+      <div class="panel cream reveal reveal-d1">
+        <span class="caps">The collection</span>
+        <h2 class="display display-sm" style="margin-top:.4em">London is only<br><em>the beginning.</em></h2>
+        <div class="body-copy">
+          <p>We are actively expanding the Providence Collection across London, with Dubai to follow.
+          A residence joins the collection only when the building, the light and the location are
+          right.</p>
+        </div>
+        <a class="btn btn-ghost btn-sm" href="residences.html" style="margin-top:28px">Where we are going next</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec-cream sec-tight">
+  <div class="wrap split">
+    <div class="reveal">
+      <span class="caps">Staying longer?</span>
+      <h2 class="display display-sm" style="margin-top:.4em">For relocations,<br><em>projects and teams.</em></h2>
+      <div class="body-copy">
+        <p>Providence offers flexible London accommodation designed for longer living &mdash; invoiced
+        to the company, with monthly rates and one point of contact throughout.</p>
+      </div>
+      <a class="btn btn-ghost" href="corporate-stays.html" style="margin-top:30px">Corporate &amp; Extended Stays</a>
+    </div>
+    <div class="pic reveal reveal-d1" style="aspect-ratio:4/5;overflow:hidden">
+      <img src="img/d-detail.jpg" alt="Workspace detail" style="width:100%;height:100%;object-fit:cover">
+    </div>
   </div>
 </section>
 """
@@ -525,7 +591,7 @@ def build_home():
 
 
 def build_residences():
-    cards = _residence_cards()
+    r = RESIDENCES[0]
     secured = secured_section()
     london = future_london_section()
     dubai = " &middot; ".join(esc(n) for n in FUTURE_DUBAI)
@@ -533,45 +599,60 @@ def build_residences():
         "<option>%s</option>" % esc(n)
         for _area, names in FUTURE_LONDON for n in names) + "".join(
         "<option>%s (Dubai)</option>" % esc(n) for n in FUTURE_DUBAI)
-    shot_corp = shot("ar-tall", None, "", "Providence", "Workspace detail — desk, light, coffee")
     body = f"""
-<section class="hero hero-sm" style="padding:0">
-  <div class="bg">{shot("", "img/c02.jpg", "A Providence residence")}</div>
-  <div class="scrim"></div>
-  <div class="wrap in">
-    <div class="rule"></div>
-    <h1>The Providence Collection</h1>
-    <p class="tag">Thoughtfully selected residences across London.</p>
+<section class="sec-tight" style="padding-top:clamp(56px,9vw,120px);padding-bottom:clamp(30px,4vw,56px)">
+  <div class="wrap">
+    <div class="reveal in">
+      <span class="idx">The Collection</span>
+      <h1 class="display" style="margin-top:.3em;max-width:18ch">Places chosen<br><em>with purpose.</em></h1>
+    </div>
   </div>
+</section>
+
+<!-- ============ Vauxhall, given the width of the page ============ -->
+<section class="stage stage-tall bleed-full" style="padding:0;display:grid;align-items:end">
+  <div class="shot zoom reveal"><img src="img/d-band.jpg" alt="{esc(r['name'])}"></div>
+  <div class="veil"></div>
+  <div class="wrap on">
+    <div class="reveal reveal-d1">
+      <span class="idx">Residence 01 &mdash; the first Providence residence</span>
+      <h2 class="display" style="margin-top:.3em;color:var(--cream)"><em>Vauxhall</em></h2>
+      <p class="caps" style="margin-top:18px;color:#FFFDF8AD">{esc(r["where"])}</p>
+    </div>
+  </div>
+  <div class="stage-caption">Providence &middot; Vauxhall, SW8</div>
 </section>
 
 <section>
   <div class="wrap">
-    <div class="narrow">
-      <p class="lede">Each Providence residence is selected for its location, its light and the
-      quality of the building around it &mdash; then presented to a single standard, so that a stay
-      feels the same wherever in London you happen to be.</p>
-    </div>
-    <div style="margin-top:clamp(44px,6vw,80px)">{cards}</div>
-    <div class="note" style="margin-top:clamp(44px,6vw,72px);max-width:62ch">
-      <span class="caps">The collection is expanding</span>
-      <p>Providence opens a residence only when the building, the light and the location are right,
-      which is why the collection grows slowly. If you are looking for something specific &mdash; a
-      particular area, a longer stay or more space &mdash; tell us and we will let you know what is
-      coming before it is advertised.</p>
+    <div class="edit-split rev">
+      <div class="panel reveal" style="background:transparent;padding:0;margin:0">
+        <p class="lede" style="font-style:italic">A considered London residence by the Thames,
+        created for stays that deserve more than somewhere to sleep.</p>
+        <div class="meta" style="margin-top:26px;font-size:12px;letter-spacing:.2em;
+             text-transform:uppercase;color:var(--ink-3)">
+          {"".join("<span>%s</span>" % esc(m) for m in r["meta"])}
+        </div>
+        <a class="btn btn-ghost btn-sm" href="residences/{r['slug']}.html" style="margin-top:32px">Discover Residence 01</a>
+      </div>
+      <div class="pic wide reveal reveal-d1 zoom"><img src="img/d-window.jpg" alt="Morning light"></div>
     </div>
   </div>
 </section>
 
-<section class="sec-cream">
+<!-- ============ expansion: intent, clearly labelled as intent ============ -->
+<section class="sec-char">
   <div class="wrap">
-    <span class="caps eyebrow">Expansion</span>
-    <h2>Where Providence is going next</h2>
-    <p class="lede" style="margin-top:18px;max-width:54ch">We are actively expanding the Providence
-    Collection across London, with Dubai to follow.</p>
+    <div class="reveal">
+      <span class="idx">The Providence Collection</span>
+      <h2 class="display display-sm" style="margin-top:.32em;color:var(--cream);max-width:20ch">
+        London is only<br><em>the beginning.</em></h2>
+      <p class="lede" style="margin-top:24px;max-width:52ch">We are actively expanding the Providence
+      Collection across London, with Dubai to follow.</p>
+    </div>
     {secured}
-    <div style="margin-top:clamp(36px,5vw,58px)">
-      <div class="comingtop"><h3>On our radar</h3>
+    <div style="margin-top:clamp(42px,6vw,76px)" class="reveal reveal-d1">
+      <div class="comingtop"><h3 style="color:var(--cream)">On our radar</h3>
         <span class="caps">Neighbourhoods we intend to operate in</span></div>
       {london}
       <p class="radarnote">These are the areas Providence is looking at, not properties we hold.
@@ -580,56 +661,60 @@ def build_residences():
   </div>
 </section>
 
-<section class="sec-dark">
-  <div class="wrap narrow" style="text-align:center">
-    <span class="caps eyebrow" style="display:inline-block">Providence Dubai</span>
-    <h2 style="font-size:clamp(30px,4.4vw,54px)">The next chapter.</h2>
-    <p class="lede" style="margin-top:22px">A first Dubai collection is planned. We are looking at a
-    small number of neighbourhoods, chosen the same way as London.</p>
-    <p class="dubaiareas">{dubai}</p>
-    <a class="btn btn-light" href="contact.html" style="margin-top:34px">Register your interest</a>
-  </div>
-</section>
-
-<section class="sec-cream">
-  <div class="wrap narrow">
-    <span class="caps eyebrow">The private list</span>
-    <h2>Be first to stay</h2>
-    <p class="lede" style="margin-top:20px">Join the Providence private list for early access to new
-    residences, before they are released publicly.</p>
-    <form class="bookcard" id="listForm" style="margin-top:32px">
-      <div class="two">
-        <div class="field"><label for="pl_name">Name</label><input id="pl_name" name="name"></div>
-        <div class="field"><label for="pl_email">Email</label><input id="pl_email" name="email" type="email"></div>
-      </div>
-      <div class="field"><label for="pl_where">Preferred location</label>
-        <select id="pl_where" name="where">{wherepick}</select></div>
-      <div class="two">
-        <div class="field"><label for="pl_from">Approximate dates &mdash; from</label><input id="pl_from" name="from" type="date"></div>
-        <div class="field"><label for="pl_to">To</label><input id="pl_to" name="to" type="date"></div>
-      </div>
-      <div class="field"><label for="pl_kind">Type of stay</label>
-        <select id="pl_kind" name="kind">
-          <option>Short stay</option><option>Extended stay</option><option>Corporate</option>
-        </select></div>
-      <button class="btn btn-full" type="submit" style="margin-top:22px">Join the private list</button>
-    </form>
-  </div>
-</section>
-
-<section>
-  <div class="wrap split">
-    <div>
-      <span class="caps eyebrow">For business</span>
-      <h2>Looking for a longer stay?</h2>
-      <div class="body-copy">
-        <p>For relocations, project teams and extended business stays, Providence offers flexible
-        accommodation across London &mdash; invoiced to the company, with monthly rates and one point
-        of contact throughout.</p>
-      </div>
-      <a class="btn btn-ghost" href="corporate-stays.html" style="margin-top:30px">Corporate &amp; extended stays</a>
+<!-- ============ Dubai, its own moment ============ -->
+<section class="stage stage-mid bleed-full" id="dubai" style="padding:0;display:grid;align-items:end">
+  <div class="shot zoom reveal"><img src="img/d-detail.jpg" alt="Architectural detail"></div>
+  <div class="veil"></div>
+  <div class="wrap on">
+    <div class="reveal reveal-d1">
+      <span class="idx">The next chapter</span>
+      <h2 class="display" style="margin-top:.3em;color:var(--cream)"><em>Dubai.</em></h2>
+      <p class="lede" style="margin-top:20px;max-width:46ch;color:#FFFDF8C7">A first Dubai collection
+      is planned. We are looking at a small number of neighbourhoods, chosen the same way as London.</p>
+      <p class="dubaiareas" style="margin-top:20px;font-size:clamp(17px,1.8vw,21px)">{dubai}</p>
+      <a class="btn btn-light btn-sm" href="contact.html" style="margin-top:30px">Discover what&rsquo;s ahead</a>
     </div>
-    {shot_corp}
+  </div>
+</section>
+
+<!-- ============ the private list ============ -->
+<section>
+  <div class="wrap">
+    <div class="edit-split">
+      <div class="pic reveal zoom"><img src="img/d-linen.jpg" alt="Pressed linen"></div>
+      <div class="panel cream reveal reveal-d1">
+        <span class="idx">Be first to stay</span>
+        <h2 class="display display-sm" style="margin-top:.34em">Join the<br><em>private list.</em></h2>
+        <p class="body-copy" style="margin-top:18px">Early access to new residences, before they are
+        released publicly.</p>
+        <form id="listForm" style="margin-top:26px">
+          <div class="field"><label for="pl_name">Name</label><input id="pl_name" name="name"></div>
+          <div class="field"><label for="pl_email">Email</label><input id="pl_email" name="email" type="email"></div>
+          <div class="field"><label for="pl_where">Preferred location</label>
+            <select id="pl_where" name="where">{wherepick}</select></div>
+          <div class="two">
+            <div class="field"><label for="pl_from">From</label><input id="pl_from" name="from" type="date"></div>
+            <div class="field"><label for="pl_to">To</label><input id="pl_to" name="to" type="date"></div>
+          </div>
+          <div class="field"><label for="pl_kind">Type of stay</label>
+            <select id="pl_kind" name="kind">
+              <option>Short stay</option><option>Extended stay</option><option>Corporate</option>
+            </select></div>
+          <button class="btn btn-full" type="submit" style="margin-top:20px">Join the private list</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec-cream sec-tight">
+  <div class="wrap narrow" style="text-align:center">
+    <span class="caps" style="display:inline-block">Staying longer?</span>
+    <h2 class="display display-sm reveal" style="margin-top:.34em">For relocations,
+      <em>projects and teams.</em></h2>
+    <p class="body-copy reveal reveal-d1" style="margin:22px auto 0;max-width:56ch">Providence offers
+    flexible London accommodation designed for longer living.</p>
+    <a class="btn btn-ghost reveal reveal-d2" href="corporate-stays.html" style="margin-top:30px">Corporate &amp; Extended Stays</a>
   </div>
 </section>
 """
