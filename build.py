@@ -591,130 +591,128 @@ def build_home():
 
 
 def build_residences():
+    """The Collection page.
+
+    Her second review: the editorial direction is right but the page became
+    "too crowded and busy" -- "it mainly needs subtraction and better spacing".
+    So this page is now five sections and nothing else:
+
+        1  The Providence Collection   one image, one headline
+        2  Residence 01 - Vauxhall     the star: huge photograph, minimal words
+        3  The Providence Standard     four words, no cards
+        4  The collection is growing   a handful of names, not a directory
+        5  Private access              one register-interest block
+
+    Deliberately gone: the 36-location London list, the 8-location Dubai list
+    and the separate Dubai stage ("it makes the site feel more like a property
+    directory than a premium hospitality brand"), and the corporate CTA, which
+    is not in the five sections she listed. Corporate is still one click away
+    in the header and the footer.
+
+    The overlap/editorial device is used ONCE on this page, in section 5 --
+    "if we use it everywhere, it loses the effect".
+    """
     r = RESIDENCES[0]
-    secured = secured_section()
-    london = future_london_section()
-    dubai = " &middot; ".join(esc(n) for n in FUTURE_DUBAI)
-    wherepick = "<option>No preference</option>" + "".join(
-        "<option>%s</option>" % esc(n)
-        for _area, names in FUTURE_LONDON for n in names) + "".join(
-        "<option>%s (Dubai)</option>" % esc(n) for n in FUTURE_DUBAI)
+    # four of the six principles, elegantly, as she asked for this page
+    standard_line = "".join(
+        "<span>%s</span>" % esc(n) for n, _d in STANDARD[:4])
+    # a handful of names, not the directory
+    handful = ["Mayfair", "Belgravia", "Notting Hill", "Shoreditch", "Canary Wharf"]
+    named = ", ".join(esc(n) for n in handful[:-1]) + " and " + esc(handful[-1])
+    # the picker offers the area GROUPS, not 44 individual options
+    wherepick = ("<option>No preference</option>"
+                 + "".join("<option>%s</option>" % esc(area)
+                           for area, _names in FUTURE_LONDON)
+                 + "<option>Dubai</option>")
     body = f"""
-<section class="sec-tight" style="padding-top:clamp(56px,9vw,120px);padding-bottom:clamp(30px,4vw,56px)">
-  <div class="wrap">
+<!-- ===== 1. The Providence Collection ===== -->
+<section class="stage stage-tall bleed-full" style="padding:0;display:grid;align-items:end">
+  <div class="shot zoom reveal in"><img src="img/d-tall.jpg" alt="A Providence interior"></div>
+  <div class="veil"></div>
+  <div class="wrap on">
     <div class="reveal in">
       <span class="idx">The Collection</span>
-      <h1 class="display" style="margin-top:.3em;max-width:18ch">Places chosen<br><em>with purpose.</em></h1>
+      <h1 class="display" style="margin-top:.28em;color:var(--cream);max-width:15ch">Places chosen<br><em>with purpose.</em></h1>
     </div>
   </div>
 </section>
 
-<!-- ============ Vauxhall, given the width of the page ============ -->
-<section class="stage stage-tall bleed-full" style="padding:0;display:grid;align-items:end">
-  <div class="shot zoom reveal"><img src="img/d-band.jpg" alt="{esc(r['name'])}"></div>
-  <div class="veil"></div>
-  <div class="wrap on">
-    <div class="reveal reveal-d1">
-      <span class="idx">Residence 01 &mdash; the first Providence residence</span>
-      <h2 class="display" style="margin-top:.3em;color:var(--cream)"><em>Vauxhall</em></h2>
-      <p class="caps" style="margin-top:18px;color:#FFFDF8AD">{esc(r["where"])}</p>
-    </div>
-  </div>
-  <div class="stage-caption">Providence &middot; Vauxhall, SW8</div>
-</section>
-
-<section>
+<!-- ===== 2. Residence 01, given the whole page ===== -->
+<section class="sec-air" style="padding-bottom:0">
   <div class="wrap">
-    <div class="edit-split rev">
-      <div class="panel reveal" style="background:transparent;padding:0;margin:0">
-        <p class="lede" style="font-style:italic">A considered London residence by the Thames,
-        created for stays that deserve more than somewhere to sleep.</p>
-        <div class="meta" style="margin-top:26px;font-size:12px;letter-spacing:.2em;
-             text-transform:uppercase;color:var(--ink-3)">
-          {"".join("<span>%s</span>" % esc(m) for m in r["meta"])}
-        </div>
-        <a class="btn btn-ghost btn-sm" href="residences/{r['slug']}.html" style="margin-top:32px">Discover Residence 01</a>
-      </div>
-      <div class="pic wide reveal reveal-d1 zoom"><img src="img/d-window.jpg" alt="Morning light"></div>
+    <div class="reveal" style="max-width:24ch">
+      <span class="idx">Residence 01</span>
+      <h2 class="display" style="margin-top:.28em"><em>Vauxhall.</em></h2>
     </div>
   </div>
 </section>
 
-<!-- ============ expansion: intent, clearly labelled as intent ============ -->
-<section class="sec-char">
+<div class="full-shot reveal" style="margin-top:clamp(44px,6vw,86px)">
+  <div class="shot zoom"><img src="img/d-band.jpg" alt="{esc(r['name'])}"></div>
+</div>
+
+<section class="sec-air">
   <div class="wrap">
+    <div class="reveal" style="max-width:46ch">
+      <p class="lede" style="font-style:italic">A considered London residence by the Thames,
+      created for stays that deserve more than somewhere to sleep.</p>
+      <div class="meta">{"".join("<span>%s</span>" % esc(m) for m in r["meta"])}</div>
+      <a class="btn btn-ghost btn-sm" href="residences/{r['slug']}.html"
+         style="margin-top:36px">Explore the residence</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 3. The Providence Standard, four words ===== -->
+<section class="sec-char sec-air">
+  <div class="wrap" style="text-align:center">
+    <span class="idx caps-c">The Providence Standard</span>
+    <h2 class="standard-line reveal">{standard_line}</h2>
+    <p class="body-copy reveal reveal-d1"
+       style="margin:clamp(30px,4vw,48px) auto 0;max-width:44ch;color:#FFFDF8C7">
+      One standard, in every residence.</p>
+  </div>
+</section>
+
+<!-- ===== 4. The collection is growing ===== -->
+<!-- An intention must never read as an inventory. She was explicit about this
+     the first time round, so the qualifying line stays even though the page
+     is otherwise much shorter. -->
+<section class="sec-air">
+  <div class="wrap narrow">
     <div class="reveal">
-      <span class="idx">The Providence Collection</span>
-      <h2 class="display display-sm" style="margin-top:.32em;color:var(--cream);max-width:20ch">
-        London is only<br><em>the beginning.</em></h2>
-      <p class="lede" style="margin-top:24px;max-width:52ch">We are actively expanding the Providence
-      Collection across London, with Dubai to follow.</p>
-    </div>
-    {secured}
-    <div style="margin-top:clamp(42px,6vw,76px)" class="reveal reveal-d1">
-      <div class="comingtop"><h3 style="color:var(--cream)">On our radar</h3>
-        <span class="caps">Neighbourhoods we intend to operate in</span></div>
-      {london}
-      <p class="radarnote">These are the areas Providence is looking at, not properties we hold.
-      When a residence is secured it appears in the collection above.</p>
+      <span class="idx">The collection is growing</span>
+      <h2 class="display display-sm" style="margin-top:.3em;max-width:16ch">London first,<br><em>then Dubai.</em></h2>
+      <p class="lede" style="margin-top:clamp(24px,3vw,38px)">Providence is growing across selected
+      London neighbourhoods &mdash; among them {named} &mdash; with Dubai to follow.</p>
+      <p class="caps" style="margin-top:22px">Locations we intend to operate in, not properties we hold</p>
     </div>
   </div>
 </section>
 
-<!-- ============ Dubai, its own moment ============ -->
-<section class="stage stage-mid bleed-full" id="dubai" style="padding:0;display:grid;align-items:end">
-  <div class="shot zoom reveal"><img src="img/d-detail.jpg" alt="Architectural detail"></div>
-  <div class="veil"></div>
-  <div class="wrap on">
-    <div class="reveal reveal-d1">
-      <span class="idx">The next chapter</span>
-      <h2 class="display" style="margin-top:.3em;color:var(--cream)"><em>Dubai.</em></h2>
-      <p class="lede" style="margin-top:20px;max-width:46ch;color:#FFFDF8C7">A first Dubai collection
-      is planned. We are looking at a small number of neighbourhoods, chosen the same way as London.</p>
-      <p class="dubaiareas" style="margin-top:20px;font-size:clamp(17px,1.8vw,21px)">{dubai}</p>
-      <a class="btn btn-light btn-sm" href="contact.html" style="margin-top:30px">Discover what&rsquo;s ahead</a>
-    </div>
-  </div>
-</section>
-
-<!-- ============ the private list ============ -->
-<section>
+<!-- ===== 5. Private access. The one overlapping moment on the page. ===== -->
+<section class="sec-air">
   <div class="wrap">
     <div class="edit-split">
       <div class="pic reveal zoom"><img src="img/d-linen.jpg" alt="Pressed linen"></div>
       <div class="panel cream reveal reveal-d1">
-        <span class="idx">Be first to stay</span>
-        <h2 class="display display-sm" style="margin-top:.34em">Join the<br><em>private list.</em></h2>
+        <span class="idx">Private access</span>
+        <h2 class="display display-sm" style="margin-top:.34em">Be first<br><em>to stay.</em></h2>
         <p class="body-copy" style="margin-top:18px">Early access to new residences, before they are
         released publicly.</p>
-        <form id="listForm" style="margin-top:26px">
+        <form id="listForm" style="margin-top:30px">
           <div class="field"><label for="pl_name">Name</label><input id="pl_name" name="name"></div>
           <div class="field"><label for="pl_email">Email</label><input id="pl_email" name="email" type="email"></div>
           <div class="field"><label for="pl_where">Preferred location</label>
             <select id="pl_where" name="where">{wherepick}</select></div>
-          <div class="two">
-            <div class="field"><label for="pl_from">From</label><input id="pl_from" name="from" type="date"></div>
-            <div class="field"><label for="pl_to">To</label><input id="pl_to" name="to" type="date"></div>
-          </div>
           <div class="field"><label for="pl_kind">Type of stay</label>
             <select id="pl_kind" name="kind">
               <option>Short stay</option><option>Extended stay</option><option>Corporate</option>
             </select></div>
-          <button class="btn btn-full" type="submit" style="margin-top:20px">Join the private list</button>
+          <button class="btn btn-full" type="submit" style="margin-top:24px">Join the private list</button>
         </form>
       </div>
     </div>
-  </div>
-</section>
-
-<section class="sec-cream sec-tight">
-  <div class="wrap narrow" style="text-align:center">
-    <span class="caps" style="display:inline-block">Staying longer?</span>
-    <h2 class="display display-sm reveal" style="margin-top:.34em">For relocations,
-      <em>projects and teams.</em></h2>
-    <p class="body-copy reveal reveal-d1" style="margin:22px auto 0;max-width:56ch">Providence offers
-    flexible London accommodation designed for longer living.</p>
-    <a class="btn btn-ghost reveal reveal-d2" href="corporate-stays.html" style="margin-top:30px">Corporate &amp; Extended Stays</a>
   </div>
 </section>
 """

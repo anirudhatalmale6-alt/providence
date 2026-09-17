@@ -545,3 +545,44 @@ section{padding-block:clamp(64px,9vw,132px)}
    with a scrim that would have hidden a wrong assumption.
    The stage caption moves left so it cannot collide with the concierge pill. */
 .stage-caption{right:auto;left:var(--edge);text-align:left}
+
+/* ---------------------------------------------------------------------------
+   Subtraction pass on the Collection page.
+   Her words: "calm, spacious and expensive" -- bigger images, bigger type,
+   less text, fewer elements, much more whitespace. Nothing new is introduced
+   here; these two rules exist to take things AWAY (a container, a border) and
+   to put air back between what is left.
+   --------------------------------------------------------------------------- */
+
+/* roughly 1.6x the normal section rhythm */
+.sec-air{padding-block:clamp(92px,14vw,200px)}
+.sec-air + .sec-air{padding-top:0}
+
+/* A full-width photograph that is already a direct child of <main>, so it
+   needs NO bleed trick. .bleed-full uses margin-left:50% + translateX(-50%),
+   and transform does not affect scroll overflow -- used here it pushed the
+   layout box 640px right and only the paint came back. */
+.full-shot{width:100%}
+.full-shot .shot{aspect-ratio:16/9}
+@media(max-width:700px){.full-shot .shot{aspect-ratio:4/5}}
+
+/* The Providence Standard as four words, not four cards: no box, no border,
+   no rule -- only type and the champagne separator the brand already uses. */
+.standard-line{
+  margin-top:clamp(26px,3.4vw,44px);
+  display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;
+  gap:clamp(16px,2.6vw,40px);
+  font-family:var(--serif);font-weight:300;font-style:italic;
+  font-size:clamp(30px,5.4vw,66px);line-height:1.15;color:var(--cream);
+}
+.standard-line span{position:relative}
+.standard-line span + span::before{
+  content:"·";position:absolute;left:calc(-1 * clamp(16px,2.6vw,40px) / 2);
+  transform:translateX(-50%);color:var(--champagne);font-style:normal;
+}
+@media(max-width:560px){
+  /* at phone width the four words stack two-up; the dots would then sit in
+     mid-air, so they come off and the spacing carries the separation */
+  .standard-line{gap:14px 26px}
+  .standard-line span + span::before{display:none}
+}
