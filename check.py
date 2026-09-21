@@ -474,9 +474,28 @@ with sync_playwright() as p:
     ok("Dubai is named as following London", "dubai" in low and "to follow" in low)
     ok("Dubai carries no invented launch date",
        not re.search(r"\b20\d\d\b", page_text), page_text)
-    # An intention must never read as an inventory -- her point from round one,
-    # which survives the simplification.
-    ok("it says plainly these are not held", "not properties we hold" in low)
+    # An intention must never read as an inventory. She asked for the trailing
+    # "not properties we hold" to go, because it reads as a disclaimer -- so
+    # the honesty now lives in the VERB instead. The rule did not relax, the
+    # test moved: the qualifying phrase has to sit in the SAME paragraph as
+    # the place names, or the names stand alone as an implied inventory.
+    para = None
+    for t in pg.eval_on_selector_all("section .lede, section p",
+                                     "es=>es.map(e=>e.textContent.replace(/\s+/g,' ').trim())"):
+        if "Mayfair" in t:
+            para = t; break
+    ok("the neighbourhoods are named in a paragraph", para is not None, para)
+    INTENT = ("looking to expand into", "intend to operate", "plans to open",
+              "hopes to expand", "expanding into")
+    ok("and that paragraph states the intention, not possession",
+       para and any(v in para.lower() for v in INTENT), para)
+    ok("every named area sits inside that same sentence",
+       para and all(n in para for n in
+                    ("Mayfair", "Belgravia", "Notting Hill", "Shoreditch", "Canary Wharf")), para)
+    # nothing anywhere may claim these places are already running
+    for claim in ("we operate in", "our properties in", "residences in mayfair",
+                  "now open in", "available in mayfair", "our portfolio"):
+        ok("the page never claims %r" % claim, claim not in low)
     for claim in ("being prepared", "36 locations", "44 locations", "8 locations"):
         ok("the page never claims %r" % claim, claim not in low)
     ok("nothing is badged Coming Soon while nothing is secured", "coming soon" not in low)
@@ -505,6 +524,104 @@ with sync_playwright() as p:
        all(a in wopts for a, _n in FUTURE_LONDON_FOR_TEST), wopts)
     kinds = pg.eval_on_selector_all("#pl_kind option", "e=>e.map(x=>x.textContent.trim())")
     ok("stay types offered", kinds == ["Short stay", "Extended stay", "Corporate"], kinds)
+
+    # --- the attribute line -------------------------------------------------
+    # NOTE: these assertions existed, and were lost when this block was
+    # rewritten during the simplification pass. Nothing failed, because a
+    # deleted check cannot fail -- which is precisely why coverage has to be
+    # asserted and not assumed.
+    want_order = ["1 bedroom", "sleeps 2", "thames riverside",
+                  "fully equipped kitchen", "fast wi-fi"]
+    got = [s.strip().lower().replace("\u2011", "-")
+           for s in pg.eval_on_selector_all(".meta span", "e=>e.map(x=>x.textContent)")]
+    ok("the attribute line is her line, in her order", got == want_order, got)
+    ok("'Fully Equipped' no longer stands alone",
+       all(not re.fullmatch(r"fully equipped", g) for g in got), got)
+    ok("the attribute line is not overloaded", len(got) <= 5, len(got))
+    ok("database wording is gone", "river location" not in pg.inner_text("body").lower())
+
+    # separators are generated content: inner_text cannot see a ::before, so
+    # they have to be measured, on every page and at both widths
+    all_pages = sorted(
+        [os.path.basename(p) for p in glob.glob(os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "*.html"))] +
+        ["residences/" + os.path.basename(p) for p in glob.glob(os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "residences", "*.html"))])
+    for w in (1440, 390):
+        carried = 0
+        for path in all_pages:
+            pg.set_viewport_size({"width": w, "height": 900})
+            pg.goto("%s/%s" % (BASE, path), wait_until="load"); pg.wait_for_timeout(250)
+            seps = pg.eval_on_selector_all(
+                ".meta span + span",
+                "e=>e.map(x=>getComputedStyle(x,'::before').content)")
+            if not seps:
+                continue
+            carried += 1
+            ok("%s at %dpx separates the attributes" % (path, w),
+               all("\u00b7" in s for s in seps), seps)
+        ok("the attribute line is actually on the page at %dpx" % w, carried >= 2, carried)
+
+    # a hyphen inside an attribute must be U+2011, or "FAST WI-" / "FI"
+    for path in ("index.html", "residences.html"):
+        pg.set_viewport_size({"width": 1440, "height": 900})
+        pg.goto("%s/%s" % (BASE, path), wait_until="load"); pg.wait_for_timeout(250)
+        texts = pg.eval_on_selector_all(".meta span,.facts span", "e=>e.map(x=>x.textContent)")
+        ok("%s has attributes to check" % path, len(texts) >= 3, len(texts))
+        ok("%s: no attribute can break at a hyphen" % path,
+           not [t for t in texts if "-" in t], [t for t in texts if "-" in t])
+        ok("%s: Wi-Fi keeps its non-breaking hyphen" % path,
+           any("Wi\u2011Fi" in t for t in texts), texts)
+    # no attribute may be split across two lines at any width
+    for w in (1360, 900, 390):
+        pg.set_viewport_size({"width": w, "height": 820})
+        pg.goto("%s/residences.html" % BASE, wait_until="load"); pg.wait_for_timeout(350)
+        split = pg.eval_on_selector_all(
+            ".meta span",
+            "es=>es.filter(e=>e.getClientRects().length>1).map(e=>e.textContent)")
+        ok("no attribute wraps mid-phrase at %dpx" % w, not split, split)
+        ok("and nothing overflows sideways at %dpx" % w,
+           pg.evaluate("document.documentElement.scrollWidth"
+                       " - document.documentElement.clientWidth") == 0)
+    pg.set_viewport_size({"width": 1440, "height": 900})
+    pg.goto("%s/residences.html" % BASE, wait_until="load"); pg.wait_for_timeout(500)
+    low = pg.inner_text("main").lower()
+
+    # --- the footer finishes the page, it does not restart it ---------------
+    foot = pg.evaluate("""() => {
+        const f = document.querySelector('.site-foot'); if (!f) return null;
+        const body = parseFloat(getComputedStyle(document.body).fontSize);
+        const g = s => { const e = f.querySelector(s); if (!e) return null;
+            const c = getComputedStyle(e);
+            return {size: parseFloat(c.fontSize), lh: parseFloat(c.lineHeight)}; };
+        return {body: body, a: g('a'), h4: g('h4'), legal: g('.legal'),
+                padTop: parseFloat(getComputedStyle(f).paddingTop)};
+    }""")
+    ok("the footer exists", foot is not None)
+    ok("footer type is smaller than the page's body copy (%s vs %s)"
+       % (foot["a"]["size"], foot["body"]), foot["a"]["size"] < foot["body"], foot["a"])
+    ok("footer links are not set solid (lh %s on %s)"
+       % (foot["a"]["lh"], foot["a"]["size"]),
+       foot["a"]["lh"] >= foot["a"]["size"] * 1.4, foot["a"])
+    ok("the legal print is the quietest thing in it",
+       foot["legal"]["size"] <= foot["a"]["size"], foot["legal"])
+    ok("and the footer is given room to breathe (%spx)" % foot["padTop"],
+       foot["padTop"] >= 60, foot["padTop"])
+    # quiet must not mean unreadable
+    fc = pg.evaluate("""() => {
+        const f = document.querySelector('.site-foot');
+        const p = s => s.match(/[\d.]+/g).map(Number);
+        const bg = p(getComputedStyle(f).backgroundColor).slice(0, 3);
+        return ['a', 'h4', '.about', '.legal'].map(sel => {
+            const e = f.querySelector(sel); if (!e) return null;
+            const fg = p(getComputedStyle(e).color);
+            const a = fg[3] === undefined ? 1 : fg[3];
+            return [sel, [0,1,2].map(i => a*fg[i] + (1-a)*bg[i]), bg];
+        }).filter(Boolean);
+    }""")
+    for sel, fg, bg in fc:
+        r = contrast(fg, bg)
+        ok("footer %s stays legible (%.2f:1)" % (sel, r), r >= 4.5, round(r, 2))
 
     # --- subtraction, measured ---------------------------------------------
     # "Reduce the number of boxes, borders, cards, panels and competing design

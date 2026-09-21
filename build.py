@@ -48,7 +48,7 @@ RESIDENCES = [
         "slug": "vauxhall-residence",
         "name": "Vauxhall Residence",
         "where": "London, SW8",
-        "meta": ["1 Bedroom", "Sleeps 2", "Thames Riverside", "Fast Wi‑Fi", "Fully Equipped"],
+        "meta": ["1 Bedroom", "Sleeps 2", "Thames Riverside", "Fully Equipped Kitchen", "Fast Wi‑Fi"],
         "hero": "img/c16.jpg",
         "intro": "A calm one-bedroom residence moments from the river, arranged for "
                  "long evenings and early starts in equal measure.",
@@ -617,6 +617,15 @@ def build_residences():
 
     The overlap/editorial device is used ONCE on this page, in section 5 --
     "if we use it everywhere, it loses the effect".
+
+    On the expansion section: an intention must never read as an inventory.
+    That rule has NOT been relaxed, it has MOVED. She asked me to drop the
+    trailing "Locations we intend to operate in, not properties we hold"
+    because it reads as a disclaimer, and she is right that it does. The
+    honesty now lives in the verb -- "Providence is looking to expand into"
+    -- rather than in a defensive clause underneath. check.py asserts the
+    forward-looking phrasing IS present and that no possession claim has
+    crept in, so the rule still has a test after the disclaimer is gone.
     """
     r = RESIDENCES[0]
     # four of the six principles, elegantly, as she asked for this page
@@ -674,24 +683,17 @@ def build_residences():
   <div class="wrap" style="text-align:center">
     <span class="idx caps-c">The Providence Standard</span>
     <h2 class="standard-line reveal">{standard_line}</h2>
-    <p class="body-copy reveal reveal-d1"
-       style="margin:clamp(30px,4vw,48px) auto 0;max-width:44ch;color:#FFFDF8C7">
-      One standard, in every residence.</p>
   </div>
 </section>
 
 <!-- ===== 4. The collection is growing ===== -->
-<!-- An intention must never read as an inventory. She was explicit about this
-     the first time round, so the qualifying line stays even though the page
-     is otherwise much shorter. -->
 <section class="sec-air">
   <div class="wrap narrow">
     <div class="reveal">
       <span class="idx">The collection is growing</span>
       <h2 class="display display-sm" style="margin-top:.3em;max-width:16ch">London first,<br><em>then Dubai.</em></h2>
-      <p class="lede" style="margin-top:clamp(24px,3vw,38px)">Providence is growing across selected
-      London neighbourhoods &mdash; among them {named} &mdash; with Dubai to follow.</p>
-      <p class="caps" style="margin-top:22px">Locations we intend to operate in, not properties we hold</p>
+      <p class="lede" style="margin-top:clamp(24px,3vw,38px)">Providence is looking to expand into
+      selected London neighbourhoods &mdash; including {named} &mdash; with Dubai to follow.</p>
     </div>
   </div>
 </section>
