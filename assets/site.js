@@ -227,3 +227,27 @@
   Array.prototype.forEach.call(els, function (el) { io.observe(el); });
 
 })();
+
+/* The loading mark. Three rules keep it from ever becoming an obstacle:
+   it is capped at 900ms no matter what, it only runs once per session, and
+   it is skipped entirely for reduced-motion. If any of this throws, the
+   class is never added and the page shows normally. */
+(function () {
+  try {
+    var root = document.documentElement;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (sessionStorage.getItem('prov_seen')) return;
+    sessionStorage.setItem('prov_seen', '1');
+
+    root.classList.add('is-loading');
+    var done = false;
+    function finish() {
+      if (done) return;
+      done = true;
+      root.classList.add('pload-out');
+      setTimeout(function () { root.classList.remove('is-loading', 'pload-out'); }, 520);
+    }
+    window.addEventListener('load', function () { setTimeout(finish, 260); });
+    setTimeout(finish, 900);            // hard cap: never hold the page
+  } catch (e) { /* any failure means no overlay, which is the safe state */ }
+})();

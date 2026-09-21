@@ -586,3 +586,80 @@ section{padding-block:clamp(64px,9vw,132px)}
   .standard-line{gap:14px 26px}
   .standard-line span + span::before{display:none}
 }
+
+/* ---------------------------------------------------------------------------
+   Her note on the hero: "brighter, lighter and more inviting ... reduce any
+   heavy dark overlay". She was right about where the darkness came from -- the
+   photograph is already bright (median luminance 205); it was this veil, which
+   was 85% opaque near-black at its foot, doing the dimming.
+
+   Scoped to .stage-bright so the Homepage is untouched until she asks.
+   The strength below was chosen by MEASURING the headline's backdrop, not by
+   eye: cream type over a bright duvet fails locally while the mean looks fine.
+   --------------------------------------------------------------------------- */
+.stage.stage-bright .veil{
+  /* a LIFTING scrim, not a darkening one: it brightens the foot of the frame
+     where the type sits, so contrast comes from light rather than from a
+     heavy black overlay. This is the only way to honour both halves of her
+     note -- "reduce any heavy dark overlay" AND "keep enough contrast". */
+  background:
+    linear-gradient(to top,#FFFDF8ED 0%,#FFFDF8C4 22%,#FFFDF870 44%,#FFFDF824 70%,transparent 92%),
+    linear-gradient(to right,#FFFDF8B8 0%,#FFFDF85E 40%,#FFFDF814 68%,transparent 100%);
+}
+/* with a bright backdrop the type goes dark -- warm stone and cream behind
+   near-black serif reads as daylight editorial, which is what she asked for */
+.stage.stage-bright .on{color:var(--char)}
+/* champagne has to darken on a light backdrop or it is decoration, not text.
+   #53452C is --champagne's exact hue and saturation at 25% lightness instead
+   of 57%. Solved against the MEASURED worst pixel behind the eyebrow, which is
+   (188,185,172) and not the cream I first assumed -- assuming the backdrop was
+   what produced a "passing" colour that measured 2.22:1 in place. 4.73:1. */
+.stage.stage-bright .on .idx{color:#53452C}
+.stage.stage-bright .stage-caption{color:#17130F9E}
+@media(max-width:620px){
+  .stage.stage-bright .veil{
+    background:linear-gradient(to top,#FFFDF8E0 0%,#FFFDF8A8 42%,#FFFDF84D 72%,transparent 100%);
+  }
+}
+
+
+/* ---------------------------------------------------------------------------
+   Her request: the cursor as a P, and a "PPS" mark while the page loads.
+
+   The cursor is a NATIVE CSS cursor, not a div chased by JavaScript. A chased
+   div lags behind the real pointer, breaks text selection and fights form
+   fields; a native cursor cannot. Cream face with an espresso outline so the
+   same mark reads on ivory pages and on the near-black sections.
+
+   Fine pointers only. On a touch screen there is no cursor to replace, and on
+   a trackpad with assistive settings the system cursor must win.
+   --------------------------------------------------------------------------- */
+@media (hover:hover) and (pointer:fine){
+  body{cursor:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAC+UlEQVR42u2Y32vTUBTHv61tV6YYabRJwDcHMjZWRcGlIIoT9X9w/niwFQR168P0bTp8UCaIr+5Jt+F8XH2bFWTDdWVdx0CnwoTmqb0dGb1zjv5IG1/asVW7zaZpK+YLFxLuSc753HMvOTmAIUOGDBn6n2XayYBjmQAAVwXvTgNIApAAhAGME5lGagqgIfhy+gTAQ2S6pDtAMfiJdxMHOlwuy18vfzqtJpNJVZKk3Fx4TvH7x9PzkXkFQB7AXSLTMV33FscyAY5llhcioayaS6nVGDMfP2Tcp06scCyzzLHMnZpvIYfDYV78+sVRvI/FYvnjrmMrpc81NTWZeJ43d4qi1eP12Nvb2zcymEql1CuXu1enpqayAG5rzYR5u0ki0/MAFirZPpIk5d6MjaUuXbiYHB0ZTRXn7Ha76eXwq/1HWlr2AHjOsUyLbgCbII7uYBYjMj1UHAAOAzgJwKcoSu5eX9/a4uKiUjRubm42DQw83Fvw/0RXgEpEZJomMpWITIcB9CmKgqEXQ6nNNue6umxOp9MM4DTHMs6GAijRJAAEp6ezWw6fyYROUbQWzqHYyABxAIjH4/nSCZ7niv75RgYoK1VVNy4bGUAAAEEQfvNFSKKYFdLIAGcAQHSL1tLVnwkGs4XVD1b6coseEXMsYyvs67MAHlutVni8Xvtmm/eBQCaRSOQBTBKZJuoNIHAss/xHBxYLBp8O7mttbd3wtb6+rvb3P/hZqIvua3GsSwZsNpuJ53mz6HZbvTe99ra2ti2lxPWr11a/Ly3lAPRorUw1AQiCYI4nyMHd2odCoayv17dWCP4RkelrrYtl0evkZjIZlVKqRqPRXHg2rLz1+9ORSKRYTvdUI3jNAOWq0W30GcCNav7Q6JYBABkAFEAUwCwAP5HpXLWdVAsgRmTaUY+veV1LCQPAADAADICdAQqtlW+7KeYKo7thACpsLT6rNUTZ4CvpzPnu3vpRy0z882dAr+50L5HpSN0zUGFrsWbBGzJkyJAhzfoFpk+qN+WZJfIAAAAASUVORK5CYII=") 6 2, auto}
+  /* anything interactive keeps the affordance the visitor expects */
+  a,button,select,summary,[role=button],.btn,.burger,.conc-open{cursor:pointer}
+  input,textarea,[contenteditable]{cursor:text}
+}
+
+/* ---------- the loading mark ----------
+   Fail-safe by construction: the overlay is invisible unless JS has marked the
+   document, so if the script never runs the page is simply shown. It also
+   never outstays its welcome -- a hard cap, once per session, and nothing at
+   all for anyone who has asked for reduced motion. */
+.pload{display:none}
+html.is-loading .pload{
+  display:grid;place-items:center;
+  position:fixed;inset:0;z-index:200;background:var(--ivory);
+  transition:opacity .5s ease, visibility .5s ease;
+}
+html.is-loading.pload-out .pload{opacity:0;visibility:hidden}
+.pload-mark{
+  font-family:var(--serif);font-weight:300;font-style:italic;
+  font-size:clamp(34px,5vw,58px);letter-spacing:.18em;
+  color:var(--char);padding-left:.18em;
+}
+html.is-loading .pload-mark{animation:ploadIn .7s ease both}
+@keyframes ploadIn{from{opacity:0;letter-spacing:.34em}to{opacity:1;letter-spacing:.18em}}
+@media (prefers-reduced-motion: reduce){
+  html.is-loading .pload{display:none}
+}

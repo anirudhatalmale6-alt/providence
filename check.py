@@ -14,6 +14,8 @@ import build as _b
 FUTURE_DUBAI_FOR_TEST = _b.FUTURE_DUBAI
 FUTURE_LONDON_FOR_TEST = _b.FUTURE_LONDON
 STANDARD_FOR_TEST = _b.STANDARD
+LOADER_MARK_FOR_TEST = _b.LOADER_MARK
+BRAND_SUB_FOR_TEST = _b.BRAND_SUB
 from playwright.sync_api import sync_playwright
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -289,6 +291,62 @@ with sync_playwright() as p:
     ok("the site does not read as gold", accent < light / 3, (round(accent, 1), round(light, 1)))
 
 
+    # --- the stylesheet must not silently lose rules ------------------------
+    # A single stray "}" at top level makes the browser discard the NEXT rule
+    # and say nothing. That is how the P cursor went missing: the file was
+    # correct, the media query matched, the block parsed fine in isolation --
+    # and it was absent from the parsed sheet because an extra brace 14 lines
+    # earlier had eaten it.
+    css_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "assets", "style.css")
+    css_src = open(css_path, encoding="utf-8").read()
+    depth = 0; i = 0; n = len(css_src); in_comment = False; in_str = None; strays = []
+    line = 1
+    while i < n:
+        ch = css_src[i]
+        if ch == "\n":
+            line += 1
+        if in_comment:
+            if css_src.startswith("*/", i):
+                in_comment = False; i += 2; continue
+            i += 1; continue
+        if in_str:
+            if ch == "\\":
+                i += 2; continue
+            if ch == in_str:
+                in_str = None
+            i += 1; continue
+        if css_src.startswith("/*", i):
+            in_comment = True; i += 2; continue
+        if ch in "\"'":
+            in_str = ch; i += 1; continue
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth < 0:
+                strays.append(line); depth = 0
+        i += 1
+    ok("the stylesheet has no stray closing brace", not strays, strays)
+    ok("the stylesheet's braces balance", depth == 0, depth)
+    ok("the stylesheet has no unterminated comment", not in_comment)
+    ok("the stylesheet has no unterminated string", in_str is None)
+
+    # and prove it to the parser: every @media in the source must survive
+    src_media = len(re.findall(r"@media[^{]*\{", css_src))
+    pg.goto("%s/residences.html" % BASE, wait_until="load"); pg.wait_for_timeout(500)
+    parsed = pg.evaluate("""() => {
+        for (const sh of document.styleSheets) {
+            if (!sh.href || sh.href.indexOf('style.css') === -1) continue;
+            try { return [...sh.cssRules].filter(r => r.type === 4).length; }
+            catch (e) { return -1; }          // cross-origin: cannot introspect
+        }
+        return -2;
+    }""")
+    if parsed >= 0:
+        ok("every @media block in the source reaches the parser (%d/%d)"
+           % (parsed, src_media), parsed == src_media, (parsed, src_media))
+
     # --- every local link and asset must resolve to a real file -------------
     # An "the link exists" assertion only proves the anchor is in the markup.
     # It says nothing about whether the page on the other end was generated.
@@ -493,24 +551,47 @@ with sync_playwright() as p:
     # while the average stays comfortable.
     import io as _io2
     from PIL import Image as _Img2
-    CREAM = (255, 253, 248)
+    # Read the type colour off the page instead of assuming it. The hero type
+    # is no longer cream: on a bright daylight photograph it is near-black, and
+    # an assertion that hard-codes the foreground silently measures fiction.
     for w, h, tag in ((1360, 820, "desktop"), (390, 844, "phone")):
         pg.set_viewport_size({"width": w, "height": h})
         pg.goto("%s/residences.html" % BASE, wait_until="load"); pg.wait_for_timeout(1100)
-        box = pg.eval_on_selector("section.stage .display",
-            "e=>{const r=e.getBoundingClientRect();"
-            "return {x:r.x,y:r.y,width:r.width,height:r.height}}")
-        pg.eval_on_selector("section.stage .display", "e=>e.style.visibility='hidden'")
-        pg.wait_for_timeout(150)
-        im = _Img2.open(_io2.BytesIO(pg.screenshot(clip=box))).convert("RGB")
-        pg.eval_on_selector("section.stage .display", "e=>e.style.visibility=''")
-        rs = sorted(contrast(im.getpixel((x, y)), CREAM)
-                    for y in range(0, im.height, 3) for x in range(0, im.width, 3))
-        p1 = rs[max(0, int(len(rs) * 0.01))]
-        share_below = 100.0 * sum(1 for r in rs if r < 4.5) / len(rs)
-        ok("Collection headline legible on %s (p1 %.2f:1)" % (tag, p1), p1 >= 4.5, round(p1, 2))
-        ok("and almost none of it is below 4.5 on %s (%.1f%%)" % (tag, share_below),
-           share_below <= 2.0, round(share_below, 1))
+        for sel, label in ((".stage .display", "headline"), (".stage .idx", "eyebrow")):
+            if pg.locator(sel).count() == 0:
+                continue
+            box = pg.eval_on_selector(sel,
+                "e=>{const r=e.getBoundingClientRect();"
+                "return {x:r.x,y:r.y,width:r.width,height:r.height}}")
+            col = pg.eval_on_selector(sel, "e=>getComputedStyle(e).color")
+            cp = [float(x) for x in col[col.index("(") + 1:col.index(")")].split(",")]
+            a = cp[3] if len(cp) > 3 else 1.0
+            pg.eval_on_selector(sel, "e=>e.style.visibility='hidden'"); pg.wait_for_timeout(140)
+            im = _Img2.open(_io2.BytesIO(pg.screenshot(clip=box))).convert("RGB")
+            pg.eval_on_selector(sel, "e=>e.style.visibility=''")
+            px = [im.getpixel((x, y))
+                  for y in range(0, im.height, 2) for x in range(0, im.width, 2)]
+            rs = sorted(contrast(tuple(a * cp[i] + (1 - a) * q[i] for i in range(3)), q)
+                        for q in px)
+            share_below = 100.0 * sum(1 for r in rs if r < 4.5) / len(rs)
+            ok("Collection %s legible on %s (worst %.2f:1)" % (label, tag, rs[0]),
+               rs[0] >= 4.5, round(rs[0], 2))
+            ok("and none of the %s is below 4.5 on %s (%.1f%%)" % (label, tag, share_below),
+               share_below <= 0.5, round(share_below, 1))
+        # her note: the hero must read as daylight, not as a dark moody image
+        st = pg.eval_on_selector("section.stage",
+            "e=>{const r=e.getBoundingClientRect();return {x:r.x,y:Math.max(0,r.y),"
+            "width:r.width,height:Math.min(r.height,%d-Math.max(0,r.y))}}" % h)
+        fi = _Img2.open(_io2.BytesIO(pg.screenshot(clip=st))).convert("RGB")
+        fp = [fi.getpixel((x, y)) for y in range(0, fi.height, 5) for x in range(0, fi.width, 5)]
+        mean_lum = sum(0.2126 * r + 0.7152 * g + 0.0722 * b for r, g, b in fp) / len(fp)
+        ok("the hero reads as daylight on %s (mean luminance %.0f)" % (tag, mean_lum),
+           mean_lum >= 180, round(mean_lum))
+        # but not blown out
+        blown = 100.0 * sum(1 for r, g, b in fp
+                            if 0.2126 * r + 0.7152 * g + 0.0722 * b > 250) / len(fp)
+        ok("and is not overexposed on %s (%.1f%% near-white)" % (tag, blown),
+           blown <= 12.0, round(blown, 1))
     pg.set_viewport_size({"width": 1440, "height": 900})
     pg.goto("%s/residences.html" % BASE, wait_until="load"); pg.wait_for_timeout(700)
     page_text = pg.inner_text("main")
@@ -528,6 +609,24 @@ with sync_playwright() as p:
     heads = pg.eval_on_selector_all("main h1, main h2",
                                     "e=>e.map(x=>x.textContent.trim().replace(/\s+/g,' '))")
     ok("five sections, no more", len(heads) == 5, heads)
+
+    # --- her P cursor and PPS loading mark ----------------------------------
+    cur = pg.eval_on_selector("body", "e=>getComputedStyle(e).cursor")
+    ok("the P cursor is applied on a fine pointer", cur.startswith("url("), cur[:40])
+    ok("links still show a pointer",
+       pg.eval_on_selector(".site-head nav a", "e=>getComputedStyle(e).cursor") == "pointer")
+    ok("text fields still show a caret",
+       pg.eval_on_selector("#pl_name", "e=>getComputedStyle(e).cursor") == "text")
+    mark = pg.inner_text(".pload-mark")
+    ok("the loading mark is derived from the brand, not typed",
+       mark == LOADER_MARK_FOR_TEST, (mark, LOADER_MARK_FOR_TEST))
+    ok("and it matches the wordmark currently in use",
+       mark == "".join(w[0] for w in ("Providence " + BRAND_SUB_FOR_TEST)
+                       .replace("-", " ").split()).upper(), mark)
+    # the overlay must never be able to trap the page
+    ok("the overlay is inert until JS marks the document",
+       pg.eval_on_selector(".pload", "e=>e.closest('html').classList.contains('is-loading')"
+                                     "|| getComputedStyle(e).display === 'none'"))
     ok("and the Standard's four words are that section's heading",
        any("Sleep" in h and "Service" in h for h in heads), heads)
 

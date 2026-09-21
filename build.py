@@ -165,7 +165,12 @@ CONCIERGE_PROMISE = "Usually replies the same day"
 # She asked me to explore dropping "Premium Suites" from the customer-facing
 # wordmark. It is one constant, so switching is a single edit and the legal
 # trading name is unaffected.
-BRAND_SUB = "Premium Suites"          # alternative: "Serviced Residences · London"
+BRAND_SUB = "Premium Suites"
+
+# The loading mark is DERIVED from the brand words, never typed as a literal:
+# if BRAND_SUB changes to "Serviced Residences - London" the mark follows it
+# instead of leaving a stale "PPS" on every page.
+LOADER_MARK = "".join(w[0] for w in ("Providence " + BRAND_SUB).replace("-", " ").split()).upper()          # alternative: "Serviced Residences · London"
 
 # --------------------------------------------------------------------------
 
@@ -272,6 +277,7 @@ def header(active, depth=0):
   </div>
   <div class="mobnav" id="mobnav">{mob}<a class="btn" href="{up}book.html">Book</a></div>
 </header>
+<div class="pload" id="pload" aria-hidden="true"><span class="pload-mark">{esc(LOADER_MARK)}</span></div>
 <main id="main">
 """
 
@@ -626,13 +632,13 @@ def build_residences():
                  + "<option>Dubai</option>")
     body = f"""
 <!-- ===== 1. The Providence Collection ===== -->
-<section class="stage stage-tall bleed-full" style="padding:0;display:grid;align-items:end">
-  <div class="shot zoom reveal in"><img src="img/c02.jpg" alt="A Providence interior"></div>
+<section class="stage stage-tall stage-bright bleed-full" style="padding:0;display:grid;align-items:end">
+  <div class="shot zoom reveal in"><img src="img/c02-light.jpg" alt="A Providence interior"></div>
   <div class="veil"></div>
   <div class="wrap on">
     <div class="reveal in">
       <span class="idx">The Collection</span>
-      <h1 class="display" style="margin-top:.28em;color:var(--cream);max-width:15ch">Places chosen<br><em>with purpose.</em></h1>
+      <h1 class="display" style="margin-top:.28em;max-width:15ch">Places chosen<br><em>with purpose.</em></h1>
     </div>
   </div>
 </section>
