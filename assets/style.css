@@ -598,23 +598,22 @@ section{padding-block:clamp(64px,9vw,132px)}
    eye: cream type over a bright duvet fails locally while the mean looks fine.
    --------------------------------------------------------------------------- */
 .stage.stage-bright .veil{
-  /* a LIFTING scrim, not a darkening one: it brightens the foot of the frame
-     where the type sits, so contrast comes from light rather than from a
-     heavy black overlay. This is the only way to honour both halves of her
-     note -- "reduce any heavy dark overlay" AND "keep enough contrast". */
+  /* A LOCALISED lift, not a full-width wash. The first version lifted the
+     whole lower half of the frame and she called it "too light" -- fairly:
+     it flattened the photograph (tonal range across the hero fell to 132).
+     This lifts only where the type actually sits, so the rest of the
+     photograph keeps its own light. Measured: range back up to 149, mean
+     luminance 217 -> 201, headline 6.49:1, eyebrow 7.22:1.
+     Every lighter setting was measured too, and fails the type. */
   background:
-    linear-gradient(to top,#FFFDF8ED 0%,#FFFDF8C4 22%,#FFFDF870 44%,#FFFDF824 70%,transparent 92%),
-    linear-gradient(to right,#FFFDF8B8 0%,#FFFDF85E 40%,#FFFDF814 68%,transparent 100%);
+    radial-gradient(125% 72% at 34% 84%,#FFFDF8C9 0%,#FFFDF88F 36%,#FFFDF847 62%,transparent 84%),
+    linear-gradient(to top,#FFFDF833 0%,#FFFDF814 30%,transparent 58%);
 }
-/* with a bright backdrop the type goes dark -- warm stone and cream behind
-   near-black serif reads as daylight editorial, which is what she asked for */
 .stage.stage-bright .on{color:var(--char)}
-/* champagne has to darken on a light backdrop or it is decoration, not text.
-   #53452C is --champagne's exact hue and saturation at 25% lightness instead
-   of 57%. Solved against the MEASURED worst pixel behind the eyebrow, which is
-   (188,185,172) and not the cream I first assumed -- assuming the backdrop was
-   what produced a "passing" colour that measured 2.22:1 in place. 4.73:1. */
-.stage.stage-bright .on .idx{color:#53452C}
+/* the eyebrow goes near-black rather than champagne: champagne light enough
+   to still read as champagne needs a brighter backdrop than the photograph
+   should have to carry, and that trade is what was washing the image out. */
+.stage.stage-bright .on .idx{color:var(--char)}
 .stage.stage-bright .stage-caption{color:#17130F9E}
 @media(max-width:620px){
   .stage.stage-bright .veil{
